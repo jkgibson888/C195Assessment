@@ -5,6 +5,8 @@
 package c195assessment;
 
 import java.io.IOException;
+
+import Utility.JDBC;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -22,7 +24,9 @@ public class C195Assessment extends Application{
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        JDBC.openConnection();
         launch(args);
+        JDBC.closeConnection();
     }
     
     @Override
