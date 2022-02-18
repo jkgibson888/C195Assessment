@@ -1,11 +1,13 @@
 package Controller;
 
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -32,6 +34,13 @@ public class LogInFormController implements Initializable {
         stage.setScene(new Scene(scene));
         stage.show();
     }
+
+    //fx id's for form
+    @FXML
+    private TextField passwordTextField;
+
+    @FXML
+    private TextField userNameTextField;
 
     /**
      * Initializes the controller class.

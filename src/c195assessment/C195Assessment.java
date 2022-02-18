@@ -6,7 +6,7 @@ package c195assessment;
 
 import java.io.IOException;
 
-import Utility.JDBC;
+import DAO.JDBC;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -31,7 +31,7 @@ public class C195Assessment extends Application{
     
     @Override
     public void start(Stage stage) throws IOException{
-        Parent root = FXMLLoader.load(getClass().getResource("/View/LogInForm.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/Testing/UserTestTable.fxml"));
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();

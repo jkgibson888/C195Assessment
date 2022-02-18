@@ -22,7 +22,7 @@
                         <Insets right="25.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField />
+                  <TextField fx:id="userNameTextField" />
                </children>
                <VBox.margin>
                   <Insets left="50.0" top="30.0" />
@@ -38,7 +38,7 @@
                         <Insets left="50.0" right="38.0" />
                      </HBox.margin>
                   </Label>
-                  <TextField />
+                  <TextField fx:id="passwordTextField" />
                </children>
             </HBox>
          </children>
