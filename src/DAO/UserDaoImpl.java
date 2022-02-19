@@ -1,5 +1,6 @@
 package DAO;
 
+import Controller.LogInFormController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import Model.User;
@@ -48,4 +49,38 @@ public class UserDaoImpl {
         JDBC.closeConnection();
         return allUsers;
     }
+
+    //method to add users
+    public static void insertUser(User user){
+
+        JDBC.openConnection();
+        String sqlStatement = "INSERT INTO users (User_Name, Password, Create_Date, Created_By, Last_Update, Last_Updated_By) VALUES(\'" + user.getUserName() + "\', \'" + user.getPassword() + "\', NOW(), \'" + LogInFormController.getCurrentUser().getUserName()+ "\', NOW(), \'" + LogInFormController.getCurrentUser().getUserName() + "\')";
+        //String sqlStatement = "INSERT INTO users VALUES(3, 'admin2', 'admin2', NOW(), 'script', NOW(), 'script')";
+        Query.makeQuery(sqlStatement);
+        JDBC.closeConnection();
+
+    }
+
+    //method to update users password
+
+    public static void updatePassword(User user) throws Exception {
+        JDBC.openConnection();
+        String table = "UPDATE users ";
+        String set = "SET Password = \'" + user.getPassword() + "\'";
+        String where = "WHERE User_Name = \'" + user.getUserName() +"\'";
+        String sqlStatement = table + set + where;
+        Query.makeQuery(sqlStatement);
+        JDBC.closeConnection();
+    }
+
+    //method to delete user
+    public static void deleteUser(User user){
+        JDBC.openConnection();
+
+        String sqlStatement = "DELETE FROM users WHERE User_Name = \'" + user.getUserName() +"\'";
+        Query.makeQuery(sqlStatement);
+
+        JDBC.closeConnection();
+    }
+
 }

@@ -1,5 +1,8 @@
 package Controller;
 
+import DAO.UserDaoImpl;
+import Model.User;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,9 +15,13 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class LogInFormController implements Initializable {
+
+    //current user to be set later
+    public static User currentUser;
 
     //Method to switch scenes
 
@@ -41,6 +48,52 @@ public class LogInFormController implements Initializable {
 
     @FXML
     private TextField userNameTextField;
+
+    public static User getCurrentUser() {
+        return currentUser;
+    }
+
+    public static void setCurrentUser(User currentUser) {
+        LogInFormController.currentUser = currentUser;
+    }
+
+    public static User user;
+
+    @FXML
+    void loginBtnPressed(ActionEvent event) throws Exception {
+        try {
+            ObservableList<User> allUsers = UserDaoImpl.getAllUsers();
+            boolean userFound = false;
+            for(User user: allUsers){
+                if(userNameTextField.getText().contentEquals(user.getUserName()) && passwordTextField.getText().contentEquals(user.getPassword())){
+                    currentUser = new User(user.getUserId(), user.getUserName(), user.getPassword());
+                    System.out.println(currentUser);
+
+                    if(currentUser.getUserName().contentEquals("admin")){
+                        ChangeScene(event, "/Testing/UserTestTable.fxml");
+                    }
+                    else{
+                        ChangeScene(event, "/View/MainForm.fxml");
+                    }
+
+                    userFound = true;
+                }
+            }
+            if(!userFound) {
+                System.out.println("User name or password incorrect!");
+            }
+
+        }
+        catch(NullPointerException e){
+
+        } catch (SQLException e) {
+           // e.printStackTrace();
+        } catch (Exception e) {
+           // e.printStackTrace();
+        }
+
+
+    }
 
     /**
      * Initializes the controller class.
