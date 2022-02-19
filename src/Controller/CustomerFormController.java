@@ -6,11 +6,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class MainForm {
+public class CustomerFormController {
 
     //Method to switch scenes
 
@@ -32,16 +34,53 @@ public class MainForm {
     }
 
     @FXML
-    void appointmentBtnPressed(ActionEvent event) throws IOException {
+    private TableColumn<?, ?> addressCol;
 
+    @FXML
+    private TableView<?> appointmentTableView;
 
+    @FXML
+    private TableView<?> customerTableView;
+
+    @FXML
+    private TableColumn<?, ?> nameCol;
+
+    @FXML
+    private TableColumn<?, ?> phoneCol;
+
+    @FXML
+    private TableColumn<?, ?> startCol;
+
+    @FXML
+    private TableColumn<?, ?> stopCol;
+
+    @FXML
+    private TableColumn<?, ?> typeCol;
+
+    @FXML
+    void addAppointmentBtn(ActionEvent event) {
 
     }
 
     @FXML
-    void customerBtnPressed(ActionEvent event) throws IOException {
+    void addCustomerBtn(ActionEvent event) {
 
-        ChangeScene(event, "/View/CustomerForm.fxml");
+    }
+
+    @FXML
+    void modifyAppointmentBtn(ActionEvent event) {
+
+    }
+
+    @FXML
+    void modifyCustomerBtn(ActionEvent event) {
+
+    }
+
+    @FXML
+    void returnToMainBtn(ActionEvent event) throws IOException {
+
+        ChangeScene(event, "/View/MainForm.fxml");
 
     }
 
