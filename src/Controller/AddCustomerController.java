@@ -23,6 +23,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Timestamp;
+
 import java.util.ResourceBundle;
 
 public class AddCustomerController implements Initializable {
@@ -71,10 +73,15 @@ public class AddCustomerController implements Initializable {
         String phoneNumber = phoneNumberTextField.getText();
         String postalCode = postalCodeTextField.getText();
         String address = addressTextField.getText();
-        int divisionId = 1;
-        String fullAddress = address + ", " + postalCode;
+        Timestamp createDate = new Timestamp(System.currentTimeMillis());
+        String createdBy = LogInFormController.getCurrentUser().getUserName();
+        Timestamp lastUpdate = new Timestamp(System.currentTimeMillis());
+        String lastUpdatedBy = LogInFormController.getCurrentUser().getUserName();
+        int divisionId = stateCombo.getSelectionModel().getSelectedItem().getDivisionId();
+        String division = stateCombo.getSelectionModel().getSelectedItem().getDivision();
+        String fullAddress = address + ", " + division;
 
-        Customer newCustomer = new Customer(0, customerName, address, postalCode, phoneNumber, divisionId, fullAddress);
+        Customer newCustomer = new Customer(0, customerName, address, postalCode, phoneNumber, createDate, createdBy, lastUpdate, lastUpdatedBy, divisionId, division, fullAddress);
         CustomerDaoImpl.insertCustomer(newCustomer);
 
         ChangeScene(event, "/View/CustomerForm.fxml");

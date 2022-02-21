@@ -45,4 +45,11 @@ public class MainForm {
 
     }
 
+    @FXML
+    void logOutBtn(ActionEvent event) throws IOException {
+
+        ChangeScene(event, "/View/LogInForm.fxml");
+
+    }
+
 }

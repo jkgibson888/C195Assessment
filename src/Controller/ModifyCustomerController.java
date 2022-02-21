@@ -1,7 +1,13 @@
 package Controller;
 
+import DAO.CountryDaoImpl;
 import DAO.CustomerDaoImpl;
+import DAO.FirstLevelDivisionDaoImpl;
+import Model.Country;
 import Model.Customer;
+import Model.FirstLevelDivision;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,6 +21,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ResourceBundle;
 
 public class ModifyCustomerController implements Initializable {
@@ -42,7 +50,7 @@ public class ModifyCustomerController implements Initializable {
         private TextField addressTextField;
 
         @FXML
-        private ComboBox<?> countryCombo;
+        private ComboBox<Country> countryCombo;
 
         @FXML
         private TextField customerNameTextField;
@@ -54,20 +62,37 @@ public class ModifyCustomerController implements Initializable {
         private TextField postalCodeTextField;
 
         @FXML
-        private ComboBox<?> stateCombo;
+        private ComboBox<FirstLevelDivision> stateCombo;
+
+        private Country selectedCountry;
+
+        public Country getSelectedCountry() {
+        return selectedCountry;
+    }
+
+        public void setSelectedCountry(Country selectedCountry) {
+        this.selectedCountry = selectedCountry;
+    }
 
         @FXML
         void saveBtn(ActionEvent event) throws Exception {
+
+            Customer tempCustomer = CustomerFormController.getCustomer();
             //FIX ME! add combo box functionality to enter in division id
+            int customerId = tempCustomer.getCustomerId();
             String customerName = customerNameTextField.getText();
             String phoneNumber = phoneNumberTextField.getText();
             String postalCode = postalCodeTextField.getText();
             String address = addressTextField.getText();
-            int divisionId = CustomerFormController.getCustomer().getDivisionId();
-            int customerId = CustomerFormController.getCustomer().getCustomerId();
-            String fullAddress = address + ", " + postalCode;
+            Timestamp createDate = tempCustomer.getCreateDate();
+            String createdBy = tempCustomer.getCreatedBy();
+            Timestamp lastUpdate = new Timestamp(System.currentTimeMillis());
+            String lastUpdatedBy = LogInFormController.getCurrentUser().getUserName();
+            int divisionId = stateCombo.getSelectionModel().getSelectedItem().getDivisionId();
+            String division = stateCombo.getSelectionModel().getSelectedItem().getDivision();
+            String fullAddress = address + ", " + division;
 
-            Customer newCustomer = new Customer(customerId, customerName, address, postalCode, phoneNumber, divisionId, fullAddress);
+            Customer newCustomer = new Customer(customerId, customerName, address, postalCode, phoneNumber, createDate, createdBy, lastUpdate, lastUpdatedBy, divisionId, division, fullAddress);
             CustomerDaoImpl.updateCustomer(newCustomer);
 
             ChangeScene(event, "/View/CustomerForm.fxml");
@@ -81,6 +106,30 @@ public class ModifyCustomerController implements Initializable {
 
         }
 
+    @FXML
+    void selectCountryClick(ActionEvent event) throws Exception {
+
+        ObservableList<FirstLevelDivision> countryFirst= FXCollections.observableArrayList();
+        ObservableList<FirstLevelDivision> allFirst = FirstLevelDivisionDaoImpl.getAllFirstLevelDivisions();
+        //get first level divisions for currently selected country
+        selectedCountry = countryCombo.getSelectionModel().getSelectedItem();
+
+        for(FirstLevelDivision fl: allFirst){
+
+            if(selectedCountry != null) {
+                if (selectedCountry.getCountryId() == fl.getCountryId()) {
+
+                    countryFirst.add(fl);
+
+                }
+            }
+
+        }
+
+        //set first level combo box
+        stateCombo.setItems(countryFirst);
+
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -91,5 +140,54 @@ public class ModifyCustomerController implements Initializable {
         postalCodeTextField.setText(customer.getPostalCode());
         phoneNumberTextField.setText(customer.getPhoneNumber());
 
+        //get all countries and first level divisions
+        ObservableList<Country> allCountries = FXCollections.observableArrayList();
+        ObservableList<FirstLevelDivision> allFirst = FXCollections.observableArrayList();
+        try {
+            allCountries = CountryDaoImpl.getAllCountries();
+            allFirst = FirstLevelDivisionDaoImpl.getAllFirstLevelDivisions();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //set country combo box
+        countryCombo.setItems(allCountries);
+        countryCombo.setPromptText("Choose country");
+        try {
+            countryCombo.setValue(CountryDaoImpl.searchCountry(customer.getDivisionId()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        selectedCountry = countryCombo.getSelectionModel().getSelectedItem();
+
+        //get first level divisions for currently selected country
+        ObservableList<FirstLevelDivision> countryFirst= FXCollections.observableArrayList();
+
+        for(FirstLevelDivision fl: allFirst){
+
+            if(selectedCountry != null) {
+                if (selectedCountry.getCountryId() == fl.getCountryId()) {
+
+                    countryFirst.add(fl);
+
+                }
+            }
+
+        }
+
+        //set first level combo box
+        stateCombo.setItems(countryFirst);
+        stateCombo.setPromptText("Select State/Province");
+        try {
+            stateCombo.setValue(FirstLevelDivisionDaoImpl.searchDivision(customer.getDivisionId()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
     }
+
+
 }

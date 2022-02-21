@@ -8,30 +8,10 @@ import javafx.collections.ObservableList;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class CustomerDaoImpl {
 
-    /*public static User getCustomer(String customerName) throws SQLException, Exception{
-
-        // Connect to database
-        JDBC.openConnection();
-
-        //sql statement and database query
-        String sqlStatement="select * FROM cus WHERE User_Name  = '" + userName+ "'";
-        Query.makeQuery(sqlStatement);
-        User userResult;
-        ResultSet result=Query.getResult();
-        while(result.next()){
-            int userid=result.getInt("User_ID");
-            String password=result.getString("Password");
-            userResult= new User(userid, userName, password);
-            return userResult;
-        }
-
-        //close database connection
-        JDBC.closeConnection();
-        return null;
-    }*/
     public static ObservableList<Customer> getAllCustomers() throws SQLException, Exception{
 
         //ObservableList to be returned containing all the users
@@ -41,7 +21,9 @@ public class CustomerDaoImpl {
         JDBC.openConnection();
 
         //sql statement and database query
-        String sqlStatement="select * from customers";
+        String select ="select * from customers ";
+        String join = "INNER JOIN first_level_divisions ON customers.Division_ID = first_level_divisions.Division_ID";
+        String sqlStatement = select + join;
         Query.makeQuery(sqlStatement);
         ResultSet result=Query.getResult();
         while(result.next()){
@@ -50,9 +32,14 @@ public class CustomerDaoImpl {
             String address = result.getString("Address");
             String postalCode = result.getString("Postal_Code");
             String phoneNumber = result.getString("Phone");
+            Timestamp createDate = result.getTimestamp("Create_Date");
+            String createdBy = result.getString("Created_By");
+            Timestamp lastUpdate = result.getTimestamp("Last_Update");
+            String updatedBy = result.getString("Last_Updated_By");
             int divisionId = result.getInt("Division_ID");
-            String fullAddress = address + ", " + postalCode;
-            Customer userResult = new Customer(customerId, customerName, address, postalCode, phoneNumber, divisionId, fullAddress);
+            String division = result.getString("Division");
+            String fullAddress = address + ", " + division;
+            Customer userResult = new Customer(customerId, customerName, address, postalCode, phoneNumber, createDate, createdBy, lastUpdate, updatedBy, divisionId, division, fullAddress);
             allCustomers.add(userResult);
         }
 
@@ -93,8 +80,10 @@ public class CustomerDaoImpl {
         String setCustomerPhone = "Phone = \'" + customer.getPhoneNumber() + "\', ";
         String setLastUpdate = "Last_Update = NOW(), ";
         String setUpdatedBy = "Last_Updated_By = \'" + LogInFormController.getCurrentUser().getUserName() + "\', ";
-        String setDivisionId = "Division_Id = " + customer.getDivisionId();
-        String where = " WHERE Customer_ID = " + customer.getCustomerId();
+        String setDivisionId = "Division_Id = " + customer.getDivisionId() + " ";
+        String where = "WHERE Customer_ID = " + customer.getCustomerId();
+
+        System.out.println("updating customer.........");
 
         String sqlStatement = table + setCustomerName + setCustomerAddress + setCustomerPostal + setCustomerPhone + setLastUpdate + setUpdatedBy + setDivisionId + where;
         Query.makeQuery(sqlStatement);

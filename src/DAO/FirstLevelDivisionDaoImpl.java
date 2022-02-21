@@ -41,4 +41,33 @@ public class FirstLevelDivisionDaoImpl {
         return allFirst;
     }
 
+    public static FirstLevelDivision searchDivision(int divisionId) throws SQLException {
+
+        FirstLevelDivision userResult = null;
+        //connect to the database
+        JDBC.openConnection();
+
+        //sql statement and database query
+        String select = "select * from first_level_divisions ";
+        String where = "WHERE Division_ID = " + divisionId;
+        String sqlStatement = select + where;
+        Query.makeQuery(sqlStatement);
+        ResultSet result=Query.getResult();
+
+        while(result.next()) {
+            int newDivisionId = result.getInt("Division_ID");
+            String divisionName = result.getString("Division");
+            Timestamp createDate = result.getTimestamp("Create_Date");
+            String createdBy = result.getString("Created_By");
+            Timestamp lastUpdate = result.getTimestamp("Last_Update");
+            String lastUpdatedBy = result.getString("Last_Updated_By");
+            int countryId = result.getInt("Country_ID");
+
+            userResult = new FirstLevelDivision(newDivisionId, divisionName, createDate, createdBy, lastUpdate, lastUpdatedBy, countryId);
+
+
+        }
+        return userResult;
+    }
+
 }

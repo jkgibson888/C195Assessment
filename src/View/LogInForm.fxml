@@ -41,7 +41,7 @@
                         <Insets left="50.0" right="38.0" />
                      </HBox.margin>
                   </Label>
-                  <PasswordField fx:id="passwordTextField" onKeyPressed="#enterPressed" />
+                  <PasswordField fx:id="passwordTextField" onAction="#loginBtnPressed" />
                </children>
             </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0">

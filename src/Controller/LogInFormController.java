@@ -8,6 +8,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -43,18 +44,12 @@ public class LogInFormController implements Initializable {
      */
     public void ChangeScene(ActionEvent event, String scenestring) throws IOException {
 
-        stage = (Stage)((Button)event.getSource()).getScene().getWindow();
+        stage = (Stage)((Node)event.getSource()).getScene().getWindow();
         scene = FXMLLoader.load(getClass().getResource(scenestring));
         stage.setScene(new Scene(scene));
         stage.show();
     }
-    public void ChangeScene(KeyEvent event, String scenestring) throws IOException {
 
-        stage = (Stage)((Button)event.getSource()).getScene().getWindow();
-        scene = FXMLLoader.load(getClass().getResource(scenestring));
-        stage.setScene(new Scene(scene));
-        stage.show();
-    }
 
     //fx id's for form
 
@@ -84,7 +79,7 @@ public class LogInFormController implements Initializable {
 
     @FXML
     void loginBtnPressed(ActionEvent event) throws Exception {
-
+            System.out.println("in login btnpress....");
          try {
             ObservableList<User> allUsers = UserDaoImpl.getAllUsers();
             boolean userFound = false;
@@ -97,10 +92,13 @@ public class LogInFormController implements Initializable {
                         ChangeScene(event, "/Testing/UserTestTable.fxml");
                     }
                     else{
+                        System.out.println("In the else.......");
                         ChangeScene(event, "/View/MainForm.fxml");
                     }
 
                     userFound = true;
+                    break;
+
                 }
             }
             if(!userFound) {
@@ -121,7 +119,7 @@ public class LogInFormController implements Initializable {
 
 
     }
-    //FIX ME!! check user and password if enter key is pressed
+    /*FIX ME!! check user and password if enter key is pressed
     @FXML
     void enterPressed(KeyEvent event) {
         if(event.getCode().equals(KeyCode.ENTER)){
@@ -164,7 +162,7 @@ public class LogInFormController implements Initializable {
             }
         }
 
-    }
+    }*/
 
     /**
      * Initializes the controller class.

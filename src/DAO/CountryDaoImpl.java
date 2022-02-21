@@ -39,4 +39,33 @@ public class CountryDaoImpl {
         JDBC.closeConnection();
         return allCountries;
     }
+
+    public static Country searchCountry(int divisionId) throws SQLException {
+
+        Country userResult = null;
+        //connect to the database
+        JDBC.openConnection();
+
+        //sql statement and database query
+        String select = "select * from countries ";
+        String join = "INNER JOIN first_level_divisions ON countries.Country_ID = first_level_divisions.Country_ID ";
+        String where = "WHERE Division_ID = " + divisionId;
+        String sqlStatement = select + join + where;
+        Query.makeQuery(sqlStatement);
+        ResultSet result=Query.getResult();
+
+        while(result.next()) {
+            int newCountryId = result.getInt("Country_ID");
+            String countryName = result.getString("Country");
+            Timestamp createDate = result.getTimestamp("Create_Date");
+            String createdBy = result.getString("Created_By");
+            Timestamp lastUpdate = result.getTimestamp("Last_Update");
+            String lastUpdatedBy = result.getString("Last_Updated_By");
+
+            userResult = new Country(newCountryId, countryName, createDate, createdBy, lastUpdate, lastUpdatedBy);
+
+
+        }
+        return userResult;
+    }
 }
