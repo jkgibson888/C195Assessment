@@ -78,7 +78,7 @@ public class CustomerDaoImpl {
 
     }
 
-    //method to update users password
+    //method to update Appointment
 
     public static void updateCustomer(Customer customer) throws Exception {
 
@@ -110,7 +110,7 @@ public class CustomerDaoImpl {
         JDBC.openConnection();
 
         //sql statement and query to delete user from user table
-        String sqlStatement = "DELETE FROM customers WHERE Customer_Id = \'" + customer.getCustomerId() +"\'";
+        String sqlStatement = "DELETE FROM customers WHERE Customer_ID = \'" + customer.getCustomerId() +"\'";
         Query.makeQuery(sqlStatement);
 
         //close connection

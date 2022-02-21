@@ -1,6 +1,8 @@
 package Controller;
 
+import DAO.AppointmentDaoImpl;
 import DAO.CustomerDaoImpl;
+import Model.Appointment;
 import Model.Customer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,10 +17,13 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ResourceBundle;
 
 public class CustomerFormController implements Initializable {
@@ -53,6 +58,7 @@ public class CustomerFormController implements Initializable {
      * @param Column3 The third column of the table view.
      */
 
+    //populate a customer table
     public void PopulateTable(ObservableList<Customer> tableList, TableView<Customer> tableView, TableColumn<Customer, String> Column1, TableColumn<Customer, String> Column2, TableColumn<Customer, String> Column3){
 
         tableView.setItems(tableList);
@@ -60,6 +66,18 @@ public class CustomerFormController implements Initializable {
         Column1.setCellValueFactory(new PropertyValueFactory<>("customerName"));
         Column2.setCellValueFactory(new PropertyValueFactory<>("fullAddress"));
         Column3.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
+
+    }
+
+    //populate an appointments table
+
+    public void PopulateAppt(ObservableList<Appointment> tableList, TableView<Appointment> tableView, TableColumn<Appointment, String> Column1, TableColumn<Appointment, Timestamp> Column2, TableColumn<Appointment, Timestamp> Column3){
+
+        tableView.setItems(tableList);
+
+        Column1.setCellValueFactory(new PropertyValueFactory<>("type"));
+        Column2.setCellValueFactory(new PropertyValueFactory<>("startTime"));
+        Column3.setCellValueFactory(new PropertyValueFactory<>("endTime"));
 
     }
 
@@ -76,16 +94,16 @@ public class CustomerFormController implements Initializable {
     private TableColumn<Customer, String> phoneCol;
 
     @FXML
-    private TableView<?> appointmentTableView;
+    private TableView<Appointment> appointmentTableView;
 
     @FXML
-    private TableColumn<?, ?> startCol;
+    private TableColumn<Appointment, Timestamp> startCol;
 
     @FXML
-    private TableColumn<?, ?> stopCol;
+    private TableColumn<Appointment, Timestamp> stopCol;
 
     @FXML
-    private TableColumn<?, ?> typeCol;
+    private TableColumn<Appointment, String> typeCol;
 
     @FXML
     void addAppointmentBtn(ActionEvent event) {
@@ -97,6 +115,25 @@ public class CustomerFormController implements Initializable {
 
         ChangeScene(event, "/View/AddCustomerForm.fxml");
 
+    }
+
+    @FXML
+    void customerSelectedClick(MouseEvent event) throws Exception {
+        try {
+            //get selected customer from customer table
+            TableView.TableViewSelectionModel<Customer> selectionModel = customerTableView.getSelectionModel();
+            selectionModel.setSelectionMode(SelectionMode.SINGLE);
+            ObservableList<Customer> selectedCustomer = selectionModel.getSelectedItems();
+            Customer customer = selectedCustomer.get(0);
+
+            ObservableList<Appointment> customerAppointments = AppointmentDaoImpl.getCustomerAppointments(customer);
+
+            PopulateAppt(customerAppointments, appointmentTableView, typeCol, startCol, stopCol);
+            //DateTimeParseException orignally had localdatetime
+        }
+        catch(IndexOutOfBoundsException e){
+
+        }
     }
 
     @FXML
@@ -174,4 +211,5 @@ public class CustomerFormController implements Initializable {
         PopulateTable(allCustomers, customerTableView, nameCol, addressCol, phoneCol);
 
     }
+
 }
