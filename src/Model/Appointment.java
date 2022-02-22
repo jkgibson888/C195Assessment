@@ -1,5 +1,7 @@
 package Model;
 
+import Controller.LogInFormController;
+
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,11 +15,12 @@ public class Appointment {
     private String type;
     private Timestamp startTime;
     private Timestamp endTime;
+    private String createdBy;
     private Timestamp createDate;
     private int customerId;
     private int contactId;
 
-    public Appointment(int appointmentId, String title, String description, String location, String type, Timestamp startTime, Timestamp endTime, Timestamp createDate, int customerId, int contactId) {
+    public Appointment(int appointmentId, String title, String description, String location, String type, Timestamp startTime, Timestamp endTime, String createdBy, Timestamp createDate, int customerId, int contactId) {
         this.appointmentId = appointmentId;
         this.title = title;
         this.description = description;
@@ -28,6 +31,7 @@ public class Appointment {
         this.createDate = createDate;
         this.customerId = customerId;
         this.contactId = contactId;
+        this.createdBy = LogInFormController.getCurrentUser().getUserName();
     }
 
     public String getTitle() {

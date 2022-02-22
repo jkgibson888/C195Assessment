@@ -51,7 +51,7 @@
                         </Button>
                      </children>
                   </HBox>
-                  <TextFlow prefHeight="50.0" prefWidth="200.0" />
+                  <TextFlow fx:id="errorTextFlow" prefHeight="50.0" prefWidth="200.0" />
                </children>
                <HBox.margin>
                   <Insets left="25.0" right="50.0" />

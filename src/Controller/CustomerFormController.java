@@ -18,6 +18,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -106,7 +108,34 @@ public class CustomerFormController implements Initializable {
     private TableColumn<Appointment, String> typeCol;
 
     @FXML
-    void addAppointmentBtn(ActionEvent event) {
+    private TextFlow errorTextFlow;
+
+    //pass the customer to the modify screen
+    private static Customer modifyCustomer = null;
+
+    public static Customer getCustomer(){
+        return modifyCustomer;
+    }
+
+    @FXML
+    void addAppointmentBtn(ActionEvent event) throws IOException {
+
+        try {
+            TableView.TableViewSelectionModel<Customer> selectionModel = customerTableView.getSelectionModel();
+            selectionModel.setSelectionMode(SelectionMode.SINGLE);
+            ObservableList<Customer> selectedCustomer = selectionModel.getSelectedItems();
+            modifyCustomer = selectedCustomer.get(0);
+
+
+            ChangeScene(event, "/View/AddAppointmentForm.fxml");
+
+        }
+        catch(IndexOutOfBoundsException e) {
+
+            Text errorText = new Text("Please select a customer");
+            errorTextFlow.getChildren().add(errorText);
+
+        }
 
     }
 
@@ -117,6 +146,8 @@ public class CustomerFormController implements Initializable {
 
     }
 
+    private static Customer customer;
+
     @FXML
     void customerSelectedClick(MouseEvent event) throws Exception {
         try {
@@ -124,7 +155,9 @@ public class CustomerFormController implements Initializable {
             TableView.TableViewSelectionModel<Customer> selectionModel = customerTableView.getSelectionModel();
             selectionModel.setSelectionMode(SelectionMode.SINGLE);
             ObservableList<Customer> selectedCustomer = selectionModel.getSelectedItems();
-            Customer customer = selectedCustomer.get(0);
+            customer = selectedCustomer.get(0);
+            modifyCustomer = selectedCustomer.get(0);
+
 
             ObservableList<Appointment> customerAppointments = AppointmentDaoImpl.getCustomerAppointments(customer);
 
@@ -137,7 +170,22 @@ public class CustomerFormController implements Initializable {
     }
 
     @FXML
-    void deleteAppointmentBtn(ActionEvent event) {
+    void deleteAppointmentBtn(ActionEvent event) throws Exception {
+
+        //get selected appointment from appointment table
+        TableView.TableViewSelectionModel<Appointment> selectionModel = appointmentTableView.getSelectionModel();
+        selectionModel.setSelectionMode(SelectionMode.SINGLE);
+        ObservableList<Appointment> selectedCustomer = selectionModel.getSelectedItems();
+        Appointment appointment = selectedCustomer.get(0);
+
+        //delete appointment from database
+        AppointmentDaoImpl.deleteAppointment(appointment);
+
+        //repopulate table
+
+        ObservableList<Appointment> customerAppointments = AppointmentDaoImpl.getCustomerAppointments(customer);
+
+        PopulateAppt(customerAppointments, appointmentTableView, typeCol, startCol, stopCol);
 
     }
 
@@ -164,15 +212,23 @@ public class CustomerFormController implements Initializable {
 
     }
 
-    //pass the customer to the modify screen
-    private static Customer modifyCustomer = null;
+    //appointment to be passed on
+    private static Appointment passedAppointment;
 
-    public static Customer getCustomer(){
-        return modifyCustomer;
+    public static Appointment getPassedAppointment(){
+        return passedAppointment;
     }
 
     @FXML
     void modifyAppointmentBtn(ActionEvent event) throws IOException {
+
+        //get selected appointment from appointment table
+        TableView.TableViewSelectionModel<Appointment> selectionModel = appointmentTableView.getSelectionModel();
+        selectionModel.setSelectionMode(SelectionMode.SINGLE);
+        ObservableList<Appointment> selectedCustomer = selectionModel.getSelectedItems();
+        passedAppointment = selectedCustomer.get(0);
+
+        ChangeScene(event, "/View/ModifyAppointmentForm.fxml");
 
     }
 

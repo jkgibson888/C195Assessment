@@ -35,4 +35,10 @@ public class Contact {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    //override string to string method to display country in combo boxes
+    @Override
+    public String toString(){
+        return(contactName);
+    }
 }

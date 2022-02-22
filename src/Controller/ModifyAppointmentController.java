@@ -22,13 +22,16 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
-import java.time.*;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.Year;
 import java.util.ResourceBundle;
 
-public class AddAppointmentController implements Initializable {
+public class ModifyAppointmentController implements Initializable {
 
-    //customer to be received
+    //customer and appointment to be received
     Customer passedCustomer;
+    Appointment passedAppointment;
 
     //Method to switch scenes
 
@@ -105,9 +108,9 @@ public class AddAppointmentController implements Initializable {
     private TextFlow errorTextFlow;
 
     @FXML
-    void addBtn(ActionEvent event) throws IOException {
+    void addBtn(ActionEvent event) throws Exception {
 
-        int appId = 0;
+        int appId = CustomerFormController.getPassedAppointment().getAppointmentId();
         String title = titleTextField.getText();
         String description = descriptionTextField.getText();
         String location = locationTextField.getText();
@@ -137,7 +140,7 @@ public class AddAppointmentController implements Initializable {
         int contactId = contactCombo.getSelectionModel().getSelectedItem().getContactId();
 
         Appointment appointment = new Appointment(appId, title, description, location, type, start, end, createdBy, createdDate, customerId, contactId);
-        AppointmentDaoImpl.insertAppointment(CustomerFormController.getCustomer(), appointment);
+        AppointmentDaoImpl.updateAppointment(CustomerFormController.getCustomer(), appointment);
 
         ChangeScene(event, "/View/CustomerForm.fxml");
     }
@@ -251,8 +254,10 @@ public class AddAppointmentController implements Initializable {
         @Override
         public void initialize (URL url, ResourceBundle resourceBundle){
 
-            //get customer from customer form
+            //get customer and Appointment from customer form
+
             passedCustomer = CustomerFormController.getCustomer();
+            passedAppointment = CustomerFormController.getPassedAppointment();
 
             //populate month combo
             monthCombo.setPromptText("Month");
@@ -260,6 +265,9 @@ public class AddAppointmentController implements Initializable {
             for (int m = 1; m < 13; ++m) {
                 monthCombo.getItems().add(Month.of(m));
             }
+
+            //set month combo box
+            monthCombo.setValue(Month.of(Integer.parseInt(passedAppointment.getStartTime().toString().substring(5, 7))));
 
             //populate yearCombo
             yearCombo.setPromptText("Year");
@@ -273,12 +281,18 @@ public class AddAppointmentController implements Initializable {
             }
             yearCombo.setValue(Year.now());
 
+            //set year combo box
+            yearCombo.setValue(Year.of(Integer.parseInt(passedAppointment.getStartTime().toString().substring(0, 4))));
+
             //populate day colum
             dayCombo.setPromptText("Day");
 
             for (int d = 1; d < 29; d++) {
                 dayCombo.getItems().add(d);
             }
+
+            //set day combo box
+            dayCombo.setValue(Integer.parseInt(passedAppointment.getStartTime().toString().substring(8, 10)));
 
             //populate contact combo
             ObservableList<Contact> allContacts = FXCollections.observableArrayList();
@@ -290,20 +304,36 @@ public class AddAppointmentController implements Initializable {
             }
             contactCombo.setItems(allContacts);
             contactCombo.setPromptText("Choose contact");
+            //set contact combo box
+            for(Contact contact: allContacts) {
+                if(contact.getContactId() == passedAppointment.getContactId()) {
+                    contactCombo.setValue(contact);
+                }
+            }
 
             startAMRadio.setSelected(true);
             endAMRadio.setSelected(true);
             startCombo.setPromptText("Start time");
             stopCombo.setPromptText("Start time");
 
-            /*if (startAMRadio.isSelected()) {
-                LocalTime initStart = LocalTime.of(8, 0);
-                LocalTime initEnd = LocalTime.of(11, 50);
-                while (initStart.isBefore(initEnd.plusSeconds(1))) {
-                    startCombo.getItems().add(initStart);
-                    initStart = initStart.plusMinutes(5);
-                }
-            }*/
+            int startHour = Integer.parseInt(passedAppointment.getStartTime().toString().substring(11, 12));
+            int startMin = Integer.parseInt(passedAppointment.getStartTime().toString().substring(14, 15));
+            int startSec = Integer.parseInt(passedAppointment.getStartTime().toString().substring(17, 18));
+            int startNano = Integer.parseInt(passedAppointment.getStartTime().toString().substring(20));
+
+            //LocalTime startTime = new LocalTime(startHour, startMin, startSec, startNano);
+
+            startCombo.setValue(passedAppointment.getStartTime().toLocalDateTime().toLocalTime());
+            stopCombo.setValue(passedAppointment.getEndTime().toLocalDateTime().toLocalTime());
+
+            //set text fields
+            titleTextField.setText(passedAppointment.getTitle());
+            descriptionTextField.setText(passedAppointment.getDescription());
+            typeTextField.setText(passedAppointment.getType());
+            locationTextField.setText(passedAppointment.getLocation());
+
+
+            //FIX ME change radio buttons based on time;
         }
 
 }

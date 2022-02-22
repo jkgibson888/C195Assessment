@@ -36,11 +36,12 @@ public class AppointmentDaoImpl {
             String type = result.getString("Type");
             Timestamp startTime = result.getTimestamp("Start"); //works?
             Timestamp endTime = result.getTimestamp("End"); //works?
+            String createdBy = result.getString("Created_By");
             Timestamp createDate = result.getTimestamp("Create_Date"); //works?
             int customerId = result.getInt("Customer_ID");
             int contactId = result.getInt("Contact_ID");
 
-            Appointment userResult = new Appointment(appointmentId, title,description, location, type, startTime, endTime, createDate, customerId, contactId);
+            Appointment userResult = new Appointment(appointmentId, title,description, location, type, startTime, endTime,createdBy, createDate, customerId, contactId);
             allCustomerAppointments.add(userResult);
         }
 
@@ -64,10 +65,10 @@ public class AppointmentDaoImpl {
         JDBC.openConnection();
         //FIX ME! contact id
         //sql statement and query to insert new customer into database
-        String insert = "INSERT INTO appointments (Title, Description, Location, Type, Start, End, Create_Date, Created_By, Last_Update, Last_Updated_By, Customer_ID, User_ID) ";
+        String insert = "INSERT INTO appointments (Title, Description, Location, Type, Start, End, Create_Date, Created_By, Last_Update, Last_Updated_By, Customer_ID, User_ID, Contact_ID) ";
         String values1 = "VALUES(\'" + appointment.getTitle() + "\', \'" + appointment.getDescription() + "\', \'" + appointment.getLocation() + "\', \'" + appointment.getType() + "\', ";
         String values2 = "\'" + appointment.getStartTime() + "\', \'" + appointment.getEndTime() + "\', NOW(), \'" + LogInFormController.getCurrentUser().getUserName() + "\', NOW(), \'";
-        String values3 = LogInFormController.getCurrentUser().getUserName() + "\', \'" + customer.getCustomerId() + "\', \'" + LogInFormController.getCurrentUser().getUserId() + "\')";
+        String values3 = LogInFormController.getCurrentUser().getUserName() + "\', \'" + customer.getCustomerId() + "\', \'" + LogInFormController.getCurrentUser().getUserId() + "\', " + appointment.getContactId() + ")";
         String sqlStatement = insert + values1 + values2 + values3;
         Query.makeQuery(sqlStatement);
 
@@ -82,28 +83,33 @@ public class AppointmentDaoImpl {
 
         //connect to database
         JDBC.openConnection();
-//FINISH
-       /* //sql statement and query to update a customer
+        //sql statement and query to update a customer
         String table = "UPDATE appointments ";
-        String title = "SET Customer_Name = \'" + customer.getCustomerName() + "\', ";
-        String description = "Address = \'" + customer.getAddress() + "\', ";
-        String location = "Postal_Code = \'" + customer.getPostalCode() + "\', ";
-        String type = "Phone = \'" + customer.getPhoneNumber() + "\', ";
-        Date
+        String title = "SET Title = \'" + appointment.getTitle() + "\', ";
+        String description = "Description = \'" + appointment.getDescription() + "\', ";
+        String location = "Location = \'" + appointment.getLocation() + "\', ";
+        String type = "Type = \'" + appointment.getType() + "\', ";
+        String start = "Start = \'" + appointment.getStartTime() + "\', ";
+        String end = "End = \'" + appointment.getEndTime() + "\', ";
         String setLastUpdate = "Last_Update = NOW(), ";
         String setUpdatedBy = "Last_Updated_By = \'" + LogInFormController.getCurrentUser().getUserName() + "\', ";
-        String setDivisionId = "Division_Id = " + customer.getDivisionId();
-        String where = " WHERE Customer_ID = " + customer.getCustomerId();
+        String customerId = "Customer_ID = " + customer.getCustomerId() + ", ";
+        String userId = "User_ID = " + LogInFormController.getCurrentUser().getUserId() + ", ";
+        String contactId = "Contact_ID = " + appointment.getContactId();
+        String where = " WHERE Appointment_ID = " + appointment.getAppointmentId();
 
-        String sqlStatement = table + setCustomerName + setCustomerAddress + setCustomerPostal + setCustomerPhone + setLastUpdate + setUpdatedBy + setDivisionId + where;
+        System.out.println("current appointment id " + appointment.getAppointmentId());
+        System.out.println(appointment.getAppointmentId());
+
+        String sqlStatement = table + title + description + location + type + start + end + setLastUpdate + setUpdatedBy + customerId + userId + contactId + where;
         Query.makeQuery(sqlStatement);
 
         //close database connection
-        JDBC.closeConnection();*/
+        JDBC.closeConnection();
     }
 
     //method to delete appointment
-    public static void deleteCustomer(Appointment appointment){
+    public static void deleteAppointment(Appointment appointment){
 
         //connect to database
         JDBC.openConnection();
