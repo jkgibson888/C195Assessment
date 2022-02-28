@@ -110,7 +110,7 @@ public class ModifyAppointmentController implements Initializable {
     @FXML
     void addBtn(ActionEvent event) throws Exception {
 
-        int appId = CustomerFormController.getPassedAppointment().getAppointmentId();
+        //int appId = AppointmentFormController.getPassedAppointment().getAppointmentId();
         String title = titleTextField.getText();
         String description = descriptionTextField.getText();
         String location = locationTextField.getText();
@@ -139,16 +139,16 @@ public class ModifyAppointmentController implements Initializable {
         int customerId = passedCustomer.getCustomerId();
         int contactId = contactCombo.getSelectionModel().getSelectedItem().getContactId();
 
-        Appointment appointment = new Appointment(appId, title, description, location, type, start, end, createdBy, createdDate, customerId, contactId);
-        AppointmentDaoImpl.updateAppointment(CustomerFormController.getCustomer(), appointment);
+        //Appointment appointment = new Appointment(appId, title, description, location, type, start, end, createdBy, createdDate, customerId, contactId);
+        //AppointmentDaoImpl.updateAppointment(AppointmentFormController.getCustomer(), appointment);
 
-        ChangeScene(event, "/View/CustomerForm.fxml");
+        ChangeScene(event, "/View/AppointmentForm.fxml");
     }
 
     @FXML
     void cancelBtn(ActionEvent event) throws IOException {
 
-        ChangeScene(event, "/View/CustomerForm.fxml");
+        ChangeScene(event, "/View/AppointmentForm.fxml");
 
     }
 
@@ -256,8 +256,8 @@ public class ModifyAppointmentController implements Initializable {
 
             //get customer and Appointment from customer form
 
-            passedCustomer = CustomerFormController.getCustomer();
-            passedAppointment = CustomerFormController.getPassedAppointment();
+            passedCustomer = AppointmentFormController.getCustomer();
+           // passedAppointment = AppointmentFormController.getPassedAppointment();
 
             //populate month combo
             monthCombo.setPromptText("Month");

@@ -137,15 +137,15 @@ public class AddAppointmentController implements Initializable {
         int contactId = contactCombo.getSelectionModel().getSelectedItem().getContactId();
 
         Appointment appointment = new Appointment(appId, title, description, location, type, start, end, createdBy, createdDate, customerId, contactId);
-        AppointmentDaoImpl.insertAppointment(CustomerFormController.getCustomer(), appointment);
+        AppointmentDaoImpl.insertAppointment(AppointmentFormController.getCustomer(), appointment);
 
-        ChangeScene(event, "/View/CustomerForm.fxml");
+        ChangeScene(event, "/View/AppointmentForm.fxml");
     }
 
     @FXML
     void cancelBtn(ActionEvent event) throws IOException {
 
-        ChangeScene(event, "/View/CustomerForm.fxml");
+        ChangeScene(event, "/View/AppointmentForm.fxml");
 
     }
 
@@ -252,7 +252,7 @@ public class AddAppointmentController implements Initializable {
         public void initialize (URL url, ResourceBundle resourceBundle){
 
             //get customer from customer form
-            passedCustomer = CustomerFormController.getCustomer();
+            passedCustomer = AppointmentFormController.getCustomer();
 
             //populate month combo
             monthCombo.setPromptText("Month");

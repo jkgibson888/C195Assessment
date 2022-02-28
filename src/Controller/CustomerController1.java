@@ -14,20 +14,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.SingleSelectionModel;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
-
 import java.util.ResourceBundle;
 
-public class AddCustomerController implements Initializable {
+public class CustomerController1 implements Initializable {
 
     //Method to switch scenes
 
@@ -49,10 +46,10 @@ public class AddCustomerController implements Initializable {
     }
 
     @FXML
-    private TextField addressTextField;
+    private TextField customerIdTextField;
 
     @FXML
-    private ComboBox<Country> countryCombo;
+    private TextField addressTextField;
 
     @FXML
     private TextField customerNameTextField;
@@ -64,11 +61,74 @@ public class AddCustomerController implements Initializable {
     private TextField postalCodeTextField;
 
     @FXML
+    private ComboBox<Country> countryCombo;
+
+    @FXML
     private ComboBox<FirstLevelDivision> stateCombo;
+
+    //customer table fxid's
+    @FXML
+    private TableView<Customer> customerView;
+
+    @FXML
+    private TableColumn<Customer, Integer> idCol;
+
+    @FXML
+    private TableColumn<Customer, String> nameCol;
+
+    @FXML
+    private TableColumn<Customer, String> addressCol;
+
+    @FXML
+    private TableColumn<Customer, String> postalCol;
+
+    @FXML
+    private TableColumn<Customer, String> phoneCol;
+
+    private static Customer thiscustomer;
+
+    @FXML
+    void customerSelected(MouseEvent event) throws Exception{
+
+        try {
+            //get selected customer from customer table
+            TableView.TableViewSelectionModel<Customer> selectionModel = customerView.getSelectionModel();
+            selectionModel.setSelectionMode(SelectionMode.SINGLE);
+            ObservableList<Customer> selectedCustomer = selectionModel.getSelectedItems();
+            thiscustomer = selectedCustomer.get(0);
+
+        }
+        catch(IndexOutOfBoundsException e){
+
+        }
+
+
+
+        customerIdTextField.setText(String.valueOf(thiscustomer.getCustomerId()));
+        customerNameTextField.setText(thiscustomer.getCustomerName());
+        addressTextField.setText(thiscustomer.getAddress());
+        postalCodeTextField.setText(thiscustomer.getPostalCode());
+        phoneNumberTextField.setText(thiscustomer.getPhoneNumber());
+
+
+    }
+
+    //populate customer table
+    public void PopulateTable(ObservableList<Customer> tableList, TableView<Customer> tableView, TableColumn<Customer, Integer> Column1, TableColumn<Customer, String> Column2, TableColumn<Customer, String> Column3, TableColumn<Customer, String> Column4, TableColumn<Customer, String> Column5){
+
+        tableView.setItems(tableList);
+
+        Column1.setCellValueFactory(new PropertyValueFactory<>("customerId"));
+        Column2.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+        Column3.setCellValueFactory(new PropertyValueFactory<>("fullAddress"));
+        Column4.setCellValueFactory(new PropertyValueFactory<>("postalCode"));
+        Column5.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
+
+    }
 
     @FXML
     void addBtn(ActionEvent event) throws IOException {
-        //FIX ME! add combo box functionality to enter in division id
+
         String customerName = customerNameTextField.getText();
         String phoneNumber = phoneNumberTextField.getText();
         String postalCode = postalCodeTextField.getText();
@@ -84,14 +144,14 @@ public class AddCustomerController implements Initializable {
         Customer newCustomer = new Customer(0, customerName, address, postalCode, phoneNumber, createDate, createdBy, lastUpdate, lastUpdatedBy, divisionId, division, fullAddress);
         CustomerDaoImpl.insertCustomer(newCustomer);
 
-        ChangeScene(event, "/View/CustomerForm.fxml");
+        ChangeScene(event, "/View/AppointmentForm.fxml");
 
     }
 
     @FXML
     public void cancelBtn(ActionEvent event) throws IOException {
 
-        ChangeScene(event, "/View/CustomerForm.fxml");
+        ChangeScene(event, "/View/AppointmentForm.fxml");
 
     }
 
@@ -131,11 +191,31 @@ public class AddCustomerController implements Initializable {
 
     }
 
+
+    @FXML
+    void modifyBtn(ActionEvent event) {
+
+    }
+
+
+    private ObservableList<Customer> allCustomers = FXCollections.observableArrayList();
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        try {
+            allCustomers = CustomerDaoImpl.getAllCustomers();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         //get all countries and first level divisions
         ObservableList<Country> allCountries = FXCollections.observableArrayList();
         ObservableList<FirstLevelDivision> allFirst = FXCollections.observableArrayList();
+
+        //populate customer table
+        PopulateTable(allCustomers, customerView, idCol, nameCol, addressCol, postalCol, phoneCol);
+
         try {
             allCountries = CountryDaoImpl.getAllCountries();
             allFirst = FirstLevelDivisionDaoImpl.getAllFirstLevelDivisions();

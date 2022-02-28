@@ -34,7 +34,7 @@ public class MainForm {
     @FXML
     void appointmentBtnPressed(ActionEvent event) throws IOException {
 
-
+        ChangeScene(event, "/View/AppointmentForm.fxml");
 
     }
 

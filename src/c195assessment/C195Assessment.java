@@ -5,8 +5,14 @@
 package c195assessment;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import DAO.JDBC;
+import Utility.Timezone;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -24,6 +30,13 @@ public class C195Assessment extends Application{
      */
     public static void main(String[] args) {
         // TODO code application logic here
+
+        //test
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.of(7, 0);
+        LocalDateTime current = LocalDateTime.of(today, now);
+        System.out.println(Timezone.ToEastern(current).toString());
+
         JDBC.openConnection();
         launch(args);
         JDBC.closeConnection();

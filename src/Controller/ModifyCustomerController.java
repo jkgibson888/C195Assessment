@@ -77,7 +77,7 @@ public class ModifyCustomerController implements Initializable {
         @FXML
         void saveBtn(ActionEvent event) throws Exception {
 
-            Customer tempCustomer = CustomerFormController.getCustomer();
+            Customer tempCustomer = AppointmentFormController.getCustomer();
             //FIX ME! add combo box functionality to enter in division id
             int customerId = tempCustomer.getCustomerId();
             String customerName = customerNameTextField.getText();
@@ -95,14 +95,14 @@ public class ModifyCustomerController implements Initializable {
             Customer newCustomer = new Customer(customerId, customerName, address, postalCode, phoneNumber, createDate, createdBy, lastUpdate, lastUpdatedBy, divisionId, division, fullAddress);
             CustomerDaoImpl.updateCustomer(newCustomer);
 
-            ChangeScene(event, "/View/CustomerForm.fxml");
+            ChangeScene(event, "/View/AppointmentForm.fxml");
 
         }
 
         @FXML
         public void cancelBtn(ActionEvent event) throws IOException {
 
-            ChangeScene(event, "/View/CustomerForm.fxml");
+            ChangeScene(event, "/View/AppointmentForm.fxml");
 
         }
 
@@ -134,7 +134,7 @@ public class ModifyCustomerController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //get customer from previous screen
-        Customer customer = CustomerFormController.getCustomer();
+        Customer customer = AppointmentFormController.getCustomer();
         customerNameTextField.setText(customer.getCustomerName());
         addressTextField.setText(customer.getAddress());
         postalCodeTextField.setText(customer.getPostalCode());

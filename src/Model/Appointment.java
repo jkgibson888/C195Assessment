@@ -20,6 +20,7 @@ public class Appointment {
     private int customerId;
     private int contactId;
 
+
     public Appointment(int appointmentId, String title, String description, String location, String type, Timestamp startTime, Timestamp endTime, String createdBy, Timestamp createDate, int customerId, int contactId) {
         this.appointmentId = appointmentId;
         this.title = title;

@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class AppointmentDaoImpl {
 
@@ -117,6 +118,8 @@ public class AppointmentDaoImpl {
         //sql statement and query to delete user from user table
         String sqlStatement = "DELETE FROM appointments WHERE Appointment_ID = \'" + appointment.getAppointmentId() +"\'";
         Query.makeQuery(sqlStatement);
+
+
 
         //close connection
         JDBC.closeConnection();

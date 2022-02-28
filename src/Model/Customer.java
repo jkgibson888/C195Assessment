@@ -148,4 +148,10 @@ public class Customer {
     public void setFullAddress(String fullAddress) {
         this.fullAddress = fullAddress;
     }
+
+    //override string to string method to display country in combo boxes
+    @Override
+    public String toString(){
+        return(customerName);
+    }
 }

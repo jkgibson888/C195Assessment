@@ -1,9 +1,13 @@
 package Controller;
 
 import DAO.AppointmentDaoImpl;
+import DAO.CountryDaoImpl;
 import DAO.CustomerDaoImpl;
+import DAO.FirstLevelDivisionDaoImpl;
 import Model.Appointment;
+import Model.Country;
 import Model.Customer;
+import Model.FirstLevelDivision;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,10 +16,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
@@ -24,13 +25,20 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class CustomerFormController implements Initializable {
 
-    ObservableList<Customer> allCustomers = FXCollections.observableArrayList();
+    //get all countries, customers, and first level divisions
+    ObservableList<Country> allCountries = FXCollections.observableArrayList();
+    ObservableList<FirstLevelDivision> allFirst = FXCollections.observableArrayList();
+    ObservableList<Appointment> customerAppointments = FXCollections.observableArrayList();
+    private ObservableList<Customer> allCustomers = FXCollections.observableArrayList();
+    private Customer customer;
+    private Country selectedCountry;
 
     //Method to switch scenes
 
@@ -51,35 +59,16 @@ public class CustomerFormController implements Initializable {
         stage.show();
     }
 
-    /**
-     * Populates a table with a list of users.
-     * @param tableList The observable list to be displayed.
-     * @param tableView The specific table view that will be populated.
-     * @param Column1 The first column of the table view.
-     * @param Column2 The second column of the table view.
-     * @param Column3 The third column of the table view.
-     */
-
-    //populate a customer table
-    public void PopulateTable(ObservableList<Customer> tableList, TableView<Customer> tableView, TableColumn<Customer, String> Column1, TableColumn<Customer, String> Column2, TableColumn<Customer, String> Column3){
+    //populate customer table
+    public void PopulateTable(ObservableList<Customer> tableList, TableView<Customer> tableView, TableColumn<Customer, Integer> Column1, TableColumn<Customer, String> Column2, TableColumn<Customer, String> Column3, TableColumn<Customer, String> Column4, TableColumn<Customer, String> Column5){
 
         tableView.setItems(tableList);
 
-        Column1.setCellValueFactory(new PropertyValueFactory<>("customerName"));
-        Column2.setCellValueFactory(new PropertyValueFactory<>("fullAddress"));
-        Column3.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
-
-    }
-
-    //populate an appointments table
-
-    public void PopulateAppt(ObservableList<Appointment> tableList, TableView<Appointment> tableView, TableColumn<Appointment, String> Column1, TableColumn<Appointment, Timestamp> Column2, TableColumn<Appointment, Timestamp> Column3){
-
-        tableView.setItems(tableList);
-
-        Column1.setCellValueFactory(new PropertyValueFactory<>("type"));
-        Column2.setCellValueFactory(new PropertyValueFactory<>("startTime"));
-        Column3.setCellValueFactory(new PropertyValueFactory<>("endTime"));
+        Column1.setCellValueFactory(new PropertyValueFactory<>("customerId"));
+        Column2.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+        Column3.setCellValueFactory(new PropertyValueFactory<>("fullAddress"));
+        Column4.setCellValueFactory(new PropertyValueFactory<>("postalCode"));
+        Column5.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
 
     }
 
@@ -87,7 +76,25 @@ public class CustomerFormController implements Initializable {
     private TableColumn<Customer, String> addressCol;
 
     @FXML
-    private TableView<Customer> customerTableView;
+    private TextField addressTextField;
+
+    @FXML
+    private ComboBox<Country> countryCombo;
+
+    @FXML
+    private TextField customerIdTextField;
+
+    @FXML
+    private TextField customerNameTextField;
+
+    @FXML
+    private TableView<Customer> customerView;
+
+    @FXML
+    private TextFlow errorTextFlow;
+
+    @FXML
+    private TableColumn<Customer, Integer> idCol;
 
     @FXML
     private TableColumn<Customer, String> nameCol;
@@ -96,107 +103,137 @@ public class CustomerFormController implements Initializable {
     private TableColumn<Customer, String> phoneCol;
 
     @FXML
-    private TableView<Appointment> appointmentTableView;
+    private TextField phoneNumberTextField;
 
     @FXML
-    private TableColumn<Appointment, Timestamp> startCol;
+    private TextField postalCodeTextField;
 
     @FXML
-    private TableColumn<Appointment, Timestamp> stopCol;
+    private TableColumn<Customer, String> postalCol;
 
     @FXML
-    private TableColumn<Appointment, String> typeCol;
+    private ComboBox<FirstLevelDivision> stateCombo;
 
     @FXML
-    private TextFlow errorTextFlow;
+    void addBtn(ActionEvent event) throws Exception {
 
-    //pass the customer to the modify screen
-    private static Customer modifyCustomer = null;
+        String customerName = customerNameTextField.getText();
+        String phoneNumber = phoneNumberTextField.getText();
+        String postalCode = postalCodeTextField.getText();
+        String address = addressTextField.getText();
+        Timestamp createDate = new Timestamp(System.currentTimeMillis());
+        String createdBy = LogInFormController.getCurrentUser().getUserName();
+        Timestamp lastUpdate = new Timestamp(System.currentTimeMillis());
+        String lastUpdatedBy = LogInFormController.getCurrentUser().getUserName();
+        int divisionId = stateCombo.getSelectionModel().getSelectedItem().getDivisionId();
+        String division = stateCombo.getSelectionModel().getSelectedItem().getDivision();
+        String fullAddress = address + ", " + division;
 
-    public static Customer getCustomer(){
-        return modifyCustomer;
-    }
+        Customer newCustomer = new Customer(0, customerName, address, postalCode, phoneNumber, createDate, createdBy, lastUpdate, lastUpdatedBy, divisionId, division, fullAddress);
+        CustomerDaoImpl.insertCustomer(newCustomer);
 
-    @FXML
-    void addAppointmentBtn(ActionEvent event) throws IOException {
+        allCustomers = CustomerDaoImpl.getAllCustomers();
 
-        try {
-            TableView.TableViewSelectionModel<Customer> selectionModel = customerTableView.getSelectionModel();
-            selectionModel.setSelectionMode(SelectionMode.SINGLE);
-            ObservableList<Customer> selectedCustomer = selectionModel.getSelectedItems();
-            modifyCustomer = selectedCustomer.get(0);
-
-
-            ChangeScene(event, "/View/AddAppointmentForm.fxml");
-
-        }
-        catch(IndexOutOfBoundsException e) {
-
-            Text errorText = new Text("Please select a customer");
-            errorTextFlow.getChildren().add(errorText);
-
-        }
+        PopulateTable(allCustomers, customerView, idCol, nameCol, addressCol, postalCol, phoneCol);
 
     }
 
-    @FXML
-    void addCustomerBtn(ActionEvent event) throws IOException {
+    private static Customer passedCustomer;
 
-        ChangeScene(event, "/View/AddCustomerForm.fxml");
-
-    }
-
-    private static Customer customer;
-
-    @FXML
-    void customerSelectedClick(MouseEvent event) throws Exception {
-        try {
-            //get selected customer from customer table
-            TableView.TableViewSelectionModel<Customer> selectionModel = customerTableView.getSelectionModel();
-            selectionModel.setSelectionMode(SelectionMode.SINGLE);
-            ObservableList<Customer> selectedCustomer = selectionModel.getSelectedItems();
-            customer = selectedCustomer.get(0);
-            modifyCustomer = selectedCustomer.get(0);
-
-
-            ObservableList<Appointment> customerAppointments = AppointmentDaoImpl.getCustomerAppointments(customer);
-
-            PopulateAppt(customerAppointments, appointmentTableView, typeCol, startCol, stopCol);
-            //DateTimeParseException orignally had localdatetime
-        }
-        catch(IndexOutOfBoundsException e){
-
-        }
+    public static Customer getPassedCustomer() {
+        return passedCustomer;
     }
 
     @FXML
-    void deleteAppointmentBtn(ActionEvent event) throws Exception {
+    void clearForm(ActionEvent event) {
 
-        //get selected appointment from appointment table
-        TableView.TableViewSelectionModel<Appointment> selectionModel = appointmentTableView.getSelectionModel();
-        selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        ObservableList<Appointment> selectedCustomer = selectionModel.getSelectedItems();
-        Appointment appointment = selectedCustomer.get(0);
-
-        //delete appointment from database
-        AppointmentDaoImpl.deleteAppointment(appointment);
-
-        //repopulate table
-
-        ObservableList<Appointment> customerAppointments = AppointmentDaoImpl.getCustomerAppointments(customer);
-
-        PopulateAppt(customerAppointments, appointmentTableView, typeCol, startCol, stopCol);
+        TableView.TableViewSelectionModel<Customer> selectionModel = customerView.getSelectionModel();
+        selectionModel.clearSelection();
+        customerIdTextField.clear();
+        customerNameTextField.clear();
+        addressTextField.clear();
+        postalCodeTextField.clear();
+        phoneNumberTextField.clear();
+        countryCombo.setValue(null);
+        stateCombo.setValue(null);
 
     }
 
     @FXML
-    void deleteCustomerBtn(ActionEvent event) {
+    void customerAppBtn(ActionEvent event) throws IOException {
 
         //get selected customer from customer table
-        TableView.TableViewSelectionModel<Customer> selectionModel = customerTableView.getSelectionModel();
+        TableView.TableViewSelectionModel<Customer> selectionModel = customerView.getSelectionModel();
+        ObservableList<Customer> selectedCustomer = selectionModel.getSelectedItems();
+        passedCustomer = selectedCustomer.get(0);
+
+        ChangeScene(event, "/View/AppointmentForm.fxml");
+
+    }
+
+    @FXML
+    void customerSelected(MouseEvent event) {
+
+        //get selected customer from customer table
+        TableView.TableViewSelectionModel<Customer> selectionModel = customerView.getSelectionModel();
+        ObservableList<Customer> selectedCustomer = selectionModel.getSelectedItems();
+        customer = selectedCustomer.get(0);
+        passedCustomer = selectedCustomer.get(0);
+
+        //set all fields when customer is selected
+        customerIdTextField.setText(String.valueOf(customer.getCustomerId()));
+        customerNameTextField.setText(customer.getCustomerName());
+        addressTextField.setText(customer.getAddress());
+        postalCodeTextField.setText(customer.getPostalCode());
+        phoneNumberTextField.setText(customer.getPhoneNumber());
+
+        countryCombo.setValue(null);
+
+        //FIX ME!
+        try {
+            countryCombo.setValue(CountryDaoImpl.searchCountry(customer.getDivisionId()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            stateCombo.setValue(FirstLevelDivisionDaoImpl.searchDivision(customer.getDivisionId()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    @FXML
+    void deleteBtn(ActionEvent event) throws Exception {
+
+        errorTextFlow.getChildren().clear();
+
+
+        //get selected customer from customer table
+        TableView.TableViewSelectionModel<Customer> selectionModel = customerView.getSelectionModel();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
         ObservableList<Customer> selectedCustomer = selectionModel.getSelectedItems();
         Customer customer = selectedCustomer.get(0);
+
+        customerAppointments = AppointmentDaoImpl.getCustomerAppointments(customer);
+
+        if(customerAppointments.size() != 0){
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Customer has " + customerAppointments.size() + " appointments, delete appointments first.");
+            Optional<ButtonType> result = alert.showAndWait();
+            return;
+        }
+
+        //display custom message saying customer was deleted
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText("Customer Deleted");
+        alert.setTitle("Notice");
+        alert.setContentText(customer.getCustomerName() + " was deleted.");
+        alert.showAndWait();
+        Text deleteText = new Text("Customer " + customer.getCustomerName() + " deleted. \n");
+        errorTextFlow.getChildren().add(deleteText);
 
         //delete customer from database
         CustomerDaoImpl.deleteCustomer(customer);
@@ -208,64 +245,116 @@ public class CustomerFormController implements Initializable {
             e.printStackTrace();
         }
 
-        PopulateTable(allCustomers, customerTableView, nameCol, addressCol, phoneCol);
+        PopulateTable(allCustomers, customerView, idCol, nameCol, addressCol, postalCol, phoneCol);
 
-    }
-
-    //appointment to be passed on
-    private static Appointment passedAppointment;
-
-    public static Appointment getPassedAppointment(){
-        return passedAppointment;
-    }
-
-    @FXML
-    void modifyAppointmentBtn(ActionEvent event) throws IOException {
-
-        //get selected appointment from appointment table
-        TableView.TableViewSelectionModel<Appointment> selectionModel = appointmentTableView.getSelectionModel();
-        selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        ObservableList<Appointment> selectedCustomer = selectionModel.getSelectedItems();
-        passedAppointment = selectedCustomer.get(0);
-
-        ChangeScene(event, "/View/ModifyAppointmentForm.fxml");
-
+        //clear form
+        customerIdTextField.clear();
+        customerNameTextField.clear();
+        addressTextField.clear();
+        postalCodeTextField.clear();
+        phoneNumberTextField.clear();
+        countryCombo.setValue(null);
+        stateCombo.setValue(null);
     }
 
     @FXML
-    void modifyCustomerBtn(ActionEvent event) throws IOException {
+    void modifyBtn(ActionEvent event) throws Exception {
 
-        //get selected customer from customer table
-        TableView.TableViewSelectionModel<Customer> selectionModel = customerTableView.getSelectionModel();
-        selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        ObservableList<Customer> selectedCustomer = selectionModel.getSelectedItems();
-        modifyCustomer = selectedCustomer.get(0);
+        //FIX ME! add combo box functionality to enter in division id
+        int customerId = customer.getCustomerId();
+        String customerName = customerNameTextField.getText();
+        String phoneNumber = phoneNumberTextField.getText();
+        String postalCode = postalCodeTextField.getText();
+        String address = addressTextField.getText();
+        Timestamp createDate = customer.getCreateDate();
+        String createdBy = customer.getCreatedBy();
+        Timestamp lastUpdate = new Timestamp(System.currentTimeMillis());
+        String lastUpdatedBy = LogInFormController.getCurrentUser().getUserName();
+        int divisionId = stateCombo.getSelectionModel().getSelectedItem().getDivisionId();
+        String division = stateCombo.getSelectionModel().getSelectedItem().getDivision();
+        String fullAddress = address + ", " + division;
 
-        //change scene to modify customer form
-        ChangeScene(event, "/View/ModifyCustomerForm.fxml");
+        Customer newCustomer = new Customer(customerId, customerName, address, postalCode, phoneNumber, createDate, createdBy, lastUpdate, lastUpdatedBy, divisionId, division, fullAddress);
+        CustomerDaoImpl.updateCustomer(newCustomer);
+
+        allCustomers = CustomerDaoImpl.getAllCustomers();
+
+        PopulateTable(allCustomers, customerView, idCol, nameCol, addressCol, postalCol, phoneCol);
 
     }
 
     @FXML
-    void returnToMainBtn(ActionEvent event) throws IOException {
+    void returnBtn(ActionEvent event) throws IOException {
 
-        //return to main form
         ChangeScene(event, "/View/MainForm.fxml");
 
     }
 
+    @FXML
+    void selectCountryClick(ActionEvent event) throws Exception {
+
+        ObservableList<FirstLevelDivision> countryFirst= FXCollections.observableArrayList();
+        ObservableList<FirstLevelDivision> allFirst = FirstLevelDivisionDaoImpl.getAllFirstLevelDivisions();
+        //get first level divisions for currently selected country
+        selectedCountry = countryCombo.getSelectionModel().getSelectedItem();
+
+
+        for(FirstLevelDivision fl: allFirst){
+
+            if(selectedCountry != null) {
+                if (selectedCountry.getCountryId() == fl.getCountryId()) {
+
+                    countryFirst.add(fl);
+                    stateCombo.setValue(null);
+
+                }
+            }
+
+        }
+
+
+        //set first level combo box
+        stateCombo.setItems(countryFirst);
+
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         try {
             allCustomers = CustomerDaoImpl.getAllCustomers();
+            allCountries = CountryDaoImpl.getAllCountries();
+            allFirst = FirstLevelDivisionDaoImpl.getAllFirstLevelDivisions();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        PopulateTable(allCustomers, customerTableView, nameCol, addressCol, phoneCol);
+        PopulateTable(allCustomers, customerView, idCol, nameCol, addressCol, postalCol, phoneCol);
 
+        //set country combo box
+        countryCombo.setItems(allCountries);
+        countryCombo.setPromptText("Choose country");
+
+
+        selectedCountry = countryCombo.getSelectionModel().getSelectedItem();
+
+        //get first level divisions for currently selected country
+        ObservableList<FirstLevelDivision> countryFirst= FXCollections.observableArrayList();
+
+        for(FirstLevelDivision fl: allFirst){
+
+            if(selectedCountry != null) {
+                if (selectedCountry.getCountryId() == fl.getCountryId()) {
+
+                    countryFirst.add(fl);
+
+                }
+            }
+
+        }
+
+        //set first level combo box
+        stateCombo.setItems(countryFirst);
+        stateCombo.setPromptText("Select State/Province");
     }
-
 }
