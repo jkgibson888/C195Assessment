@@ -31,11 +31,18 @@ public class C195Assessment extends Application{
     public static void main(String[] args) {
         // TODO code application logic here
 
-        //test
+        /*test
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.of(7, 0);
+
         LocalDateTime current = LocalDateTime.of(today, now);
-        System.out.println(Timezone.ToEastern(current).toString());
+        System.out.println(current);
+        LocalDateTime local = Timezone.LocalToEastern(current);
+        System.out.println(local);
+        LocalDateTime utc = Timezone.LocalToUtc(local);
+        System.out.println(utc);
+        LocalDateTime back = Timezone.UTCToLocalTime(utc);
+        System.out.println(back);*/
 
         JDBC.openConnection();
         launch(args);

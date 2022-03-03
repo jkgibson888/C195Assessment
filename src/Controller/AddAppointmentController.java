@@ -105,8 +105,8 @@ public class AddAppointmentController implements Initializable {
     private TextFlow errorTextFlow;
 
     @FXML
-    void addBtn(ActionEvent event) throws IOException {
-
+    void addBtn(ActionEvent event) throws Exception {
+/*FIX ME
         int appId = 0;
         String title = titleTextField.getText();
         String description = descriptionTextField.getText();
@@ -136,10 +136,13 @@ public class AddAppointmentController implements Initializable {
         int customerId = passedCustomer.getCustomerId();
         int contactId = contactCombo.getSelectionModel().getSelectedItem().getContactId();
 
+
         Appointment appointment = new Appointment(appId, title, description, location, type, start, end, createdBy, createdDate, customerId, contactId);
         AppointmentDaoImpl.insertAppointment(AppointmentFormController.getCustomer(), appointment);
 
         ChangeScene(event, "/View/AppointmentForm.fxml");
+
+ */
     }
 
     @FXML

@@ -23,9 +23,9 @@ public class AppointmentDaoImpl {
         JDBC.openConnection();
 
         //sql statement and database query to get all appointments in the database
-        String firstSelect = "select * from customers";
-        String join = " INNER JOIN appointments ON customers.Customer_ID =  appointments.Customer_ID";
-        String sqlStatement= firstSelect + join;
+        String firstSelect = "select * from appointments";
+        ///String join = " INNER JOIN appointments ON customers.Customer_ID =  appointments.Customer_ID";
+        String sqlStatement= firstSelect;
 
         Query.makeQuery(sqlStatement);
         ResultSet result=Query.getResult();
@@ -41,8 +41,9 @@ public class AppointmentDaoImpl {
             Timestamp createDate = result.getTimestamp("Create_Date"); //works?
             int customerId = result.getInt("Customer_ID");
             int contactId = result.getInt("Contact_ID");
+            int userId = result.getInt("User_ID");
 
-            Appointment userResult = new Appointment(appointmentId, title,description, location, type, startTime, endTime,createdBy, createDate, customerId, contactId);
+            Appointment userResult = new Appointment(appointmentId, title,description, location, type, startTime, endTime,createdBy, createDate, customerId, contactId, userId);
             allCustomerAppointments.add(userResult);
         }
 

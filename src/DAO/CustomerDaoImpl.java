@@ -105,4 +105,37 @@ public class CustomerDaoImpl {
         //close connection
         JDBC.closeConnection();
     }
+
+    public static Customer searchCustomer(int customerNum) throws SQLException {
+        //connect to database
+        JDBC.openConnection();
+
+        //sql statement and query to retrieve customer from database
+        String sqlStatement = "Select * FROM customers WHERE Customer_ID = " + customerNum;
+        Query.makeQuery(sqlStatement);
+        ResultSet result = Query.getResult();
+        Customer userResult = null;
+        while (result.next()) {
+            int customerId = result.getInt("Customer_ID");
+            String customerName = result.getString("Customer_Name");
+            String address = result.getString("Address");
+            String postalCode = result.getString("Postal_Code");
+            String phoneNumber = result.getString("Phone");
+            Timestamp createDate = result.getTimestamp("Create_Date");
+            String createdBy = result.getString("Created_By");
+            Timestamp lastUpdate = result.getTimestamp("Last_Update");
+            String updatedBy = result.getString("Last_Updated_By");
+            int divisionId = result.getInt("Division_ID");
+            String division = result.getString("Division");
+            String fullAddress = address + ", " + division;
+            userResult = new Customer(customerId, customerName, address, postalCode, phoneNumber, createDate, createdBy, lastUpdate, updatedBy, divisionId, division, fullAddress);
+        }
+
+        //close connection
+        JDBC.closeConnection();
+
+
+        return userResult;
+
+    }
 }

@@ -39,4 +39,10 @@ public class User {
         this.password = password;
     }
 
+    //override string to string method to display user in combo boxes
+    @Override
+    public String toString(){
+        return(userName);
+    }
+
 }

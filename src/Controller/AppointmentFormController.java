@@ -3,9 +3,11 @@ package Controller;
 import DAO.AppointmentDaoImpl;
 import DAO.ContactDaoImp;
 import DAO.CustomerDaoImpl;
+import DAO.UserDaoImpl;
 import Model.Appointment;
 import Model.Contact;
 import Model.Customer;
+import Model.User;
 import Utility.Timezone;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,6 +41,11 @@ public class AppointmentFormController implements Initializable {
     private ObservableList<Contact> allContacts = FXCollections.observableArrayList();
     private Customer currentCustomer = CustomerFormController.getPassedCustomer();
 
+    //start and end of business hours
+    private static LocalTime businessStart = LocalTime.of(8, 0);
+    private static LocalTime businessEnd = LocalTime.of(22, 0);
+
+
     //Method to switch scenes
 
     Stage stage;
@@ -67,30 +74,21 @@ public class AppointmentFormController implements Initializable {
      * @param Column3 The third column of the table view.
      */
 
-    //populate a customer table
-    public void PopulateTable(ObservableList<Customer> tableList, TableView<Customer> tableView, TableColumn<Customer, String> Column1, TableColumn<Customer, String> Column2, TableColumn<Customer, String> Column3){
+     //populate an appointments table
+
+    public void PopulateAppt(ObservableList<Appointment> tableList, TableView<Appointment> tableView, TableColumn<Appointment, String> Column1, TableColumn<Appointment,Integer> Column2, TableColumn<Appointment, String> Column3, TableColumn<Appointment, String> Column4, TableColumn<Appointment, String> Column5, TableColumn<Appointment, String> Column6, TableColumn<Appointment, String> Column7, TableColumn<Appointment, String> Column8, TableColumn<Appointment, String> Column9, TableColumn<Appointment, String> Column10){
 
         tableView.setItems(tableList);
-
         Column1.setCellValueFactory(new PropertyValueFactory<>("customerName"));
-        Column2.setCellValueFactory(new PropertyValueFactory<>("fullAddress"));
-        Column3.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
-
-    }
-
-    //populate an appointments table
-
-    public void PopulateAppt(ObservableList<Appointment> tableList, TableView<Appointment> tableView, TableColumn<Appointment,Integer> Column1, TableColumn<Appointment, String> Column2, TableColumn<Appointment, String> Column3, TableColumn<Appointment, String> Column4, TableColumn<Appointment, String> Column5, TableColumn<Appointment, Timestamp> Column6, TableColumn<Appointment, Timestamp> Column7){
-
-        tableView.setItems(tableList);
-
-        Column1.setCellValueFactory(new PropertyValueFactory<>("appointmentId"));
-        Column2.setCellValueFactory(new PropertyValueFactory<>("title"));
-        Column3.setCellValueFactory(new PropertyValueFactory<>("description"));
-        Column4.setCellValueFactory(new PropertyValueFactory<>("location"));
-        Column5.setCellValueFactory(new PropertyValueFactory<>("type"));
-        Column6.setCellValueFactory(new PropertyValueFactory<>("startTime"));
-        Column7.setCellValueFactory(new PropertyValueFactory<>("endTime"));
+        Column2.setCellValueFactory(new PropertyValueFactory<>("appointmentId"));
+        Column3.setCellValueFactory(new PropertyValueFactory<>("title"));
+        Column4.setCellValueFactory(new PropertyValueFactory<>("description"));
+        Column5.setCellValueFactory(new PropertyValueFactory<>("location"));
+        Column6.setCellValueFactory(new PropertyValueFactory<>("type"));
+        Column7.setCellValueFactory(new PropertyValueFactory<>("start"));
+        Column8.setCellValueFactory(new PropertyValueFactory<>("stop"));
+        Column9.setCellValueFactory(new PropertyValueFactory<>("contactName"));
+        Column10.setCellValueFactory(new PropertyValueFactory<>("userName"));
 
     }
 
@@ -99,6 +97,9 @@ public class AppointmentFormController implements Initializable {
 
     @FXML
     private TableView<Appointment> appointmentTableView;
+
+    @FXML
+    private TableColumn<Appointment, String> customerCol;
 
     @FXML
     private TableColumn<Appointment, String> titleCol;
@@ -110,16 +111,22 @@ public class AppointmentFormController implements Initializable {
     private TableColumn<Appointment, String> descriptionCol;
 
     @FXML
-    private TableColumn<Appointment, Timestamp> startCol;
+    private TableColumn<Appointment, String> startCol;
 
     @FXML
-    private TableColumn<Appointment, Timestamp> stopCol;
+    private TableColumn<Appointment, String> stopCol;
 
     @FXML
     private TableColumn<Appointment,Integer> idCol;
 
     @FXML
     private TableColumn<Appointment, String> typeCol;
+
+    @FXML
+    private TableColumn<Appointment, String> userCol;
+
+    @FXML
+    private TableColumn<Appointment, String> contactCol;
 
     @FXML
     private TextField descriptionTextField;
@@ -134,17 +141,6 @@ public class AppointmentFormController implements Initializable {
     @FXML
     private TextField typeTextField;
 
-    @FXML
-    private RadioButton endAMRadio;
-
-    @FXML
-    private RadioButton endPMRadio;
-
-    @FXML
-    private RadioButton startAMRadio;
-
-    @FXML
-    private RadioButton startPMRadio;
 
     @FXML
     private ComboBox<Contact> contactCombo;
@@ -159,21 +155,25 @@ public class AppointmentFormController implements Initializable {
     private ComboBox<Month> monthCombo;
 
     @FXML
-    private ComboBox<LocalTime> stopCombo;
+    private ComboBox<String> stopCombo;
 
     @FXML
     private ComboBox<Year> yearCombo;
 
     @FXML
-    private ComboBox<LocalTime> startCombo;
+    private ComboBox<String> startCombo;
 
     @FXML
-    private ToggleGroup startTG;
-    @FXML
-    private ToggleGroup stopTG;
+    private ComboBox<User> userCombo;
 
     @FXML
     private TextFlow errorTextFlow;
+
+    @FXML
+    private Button btnToAdd;
+
+    @FXML
+    private Button btnToModify;
 
     //pass the customer to the modify screen
     private static Customer modifyCustomer = null;
@@ -184,7 +184,7 @@ public class AppointmentFormController implements Initializable {
 
     @FXML
     void addBtn(ActionEvent event) throws Exception {
-
+/*FIX ME
         //int appId = 0;
         String title = titleTextField.getText();
         String description = descriptionTextField.getText();
@@ -192,36 +192,33 @@ public class AppointmentFormController implements Initializable {
         String type = typeTextField.getText();
 
         //create string for timestamp for start
-        int year = yearCombo.getSelectionModel().getSelectedItem().getValue() - 1900;
-        int month = monthCombo.getSelectionModel().getSelectedItem().getValue() - 1;
-        int date = Integer.parseInt(dayCombo.getSelectionModel().getSelectedItem().toString());
-        int hour = startCombo.getSelectionModel().getSelectedItem().getHour();
-        int minute = startCombo.getSelectionModel().getSelectedItem().getMinute();
-        int second = 0;
-        int nano = 0;
+        int year = yearCombo.getSelectionModel().getSelectedItem().getValue();
+        int month = monthCombo.getSelectionModel().getSelectedItem().getValue();
+        int day = Integer.parseInt(dayCombo.getSelectionModel().getSelectedItem().toString());
 
-        if(startPMRadio.isSelected() && startCombo.getSelectionModel().getSelectedItem().getHour() >= 1){
-            hour = hour + 12;
-        }
+        LocalTime initial = startCombo.getSelectionModel().getSelectedItem();
 
-        Timestamp start = new Timestamp(year, month, date, hour, minute, second, nano);
+        System.out.println(initial.toString());
+
+        LocalDate ldStart = LocalDate.of(year, month, day);
+        LocalDateTime ldtStart = Timezone.LocalToUtc(LocalDateTime.of(ldStart, initial));
+
+
+        Timestamp start = Timestamp.valueOf(ldtStart);
 
         //create string for timestamp for end
-        int ehour = stopCombo.getSelectionModel().getSelectedItem().getHour();
-        int eminute = stopCombo.getSelectionModel().getSelectedItem().getMinute();
-        int esecond = 0;
-        int enano = 0;
 
-        if(endPMRadio.isSelected() && stopCombo.getSelectionModel().getSelectedItem().getHour() >= 1){
-            hour = hour + 12;
-        }
+        LocalTime sInitial = stopCombo.getSelectionModel().getSelectedItem();
 
-        Timestamp end = new Timestamp(year, month, date, ehour, eminute, esecond, enano);
+        LocalDateTime ldtStop = Timezone.LocalToUtc(LocalDateTime.of(ldStart, sInitial));
+
+        Timestamp stop = Timestamp.valueOf(ldtStop);
 
         String createdBy = LogInFormController.getCurrentUser().getUserName();
         Timestamp createdDate = new Timestamp(System.currentTimeMillis());
         int customerId = customerCombo.getSelectionModel().getSelectedItem().getCustomerId();
         int contactId = contactCombo.getSelectionModel().getSelectedItem().getContactId();
+        int userId = userCombo.getSelectionModel().getSelectedItem().getUserId();
 
         //check if customer combo is still the same selected
         if(customerCombo.getSelectionModel().getSelectedItem() != currentCustomer){
@@ -229,20 +226,19 @@ public class AppointmentFormController implements Initializable {
             System.out.println("new customer was selected");
             int changedCustomerId = customerCombo.getSelectionModel().getSelectedItem().getCustomerId();
             Customer changedCustomer = customerCombo.getSelectionModel().getSelectedItem();
-            Appointment newAppointment = new Appointment(0, title, description, location, type, start, end, createdBy, createdDate, changedCustomerId, contactId);
+            Appointment newAppointment = new Appointment(0, title, description, location, type, start, stop, createdBy, createdDate, changedCustomerId, contactId, userId);
 
             AppointmentDaoImpl.insertAppointment(changedCustomer, newAppointment);
         }
         else {
-            Appointment appointment = new Appointment(0, title, description, location, type, start, end, createdBy, createdDate, customerId, contactId);
+            Appointment appointment = new Appointment(0, title, description, location, type, start, stop, createdBy, createdDate, customerId, contactId, userId);
             AppointmentDaoImpl.insertAppointment(CustomerFormController.getPassedCustomer(), appointment);
         }
         //repopulate table
 
         ObservableList<Appointment> customerAppointments = AppointmentDaoImpl.getCustomerAppointments(currentCustomer);
 
-        PopulateAppt(customerAppointments, appointmentTableView, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol);
-
+        PopulateAppt(customerAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol); */
     }
 
 
@@ -251,7 +247,7 @@ public class AppointmentFormController implements Initializable {
 
     @FXML
     void deleteBtn(ActionEvent event) throws Exception {
-
+/*FIX ME
         //get selected appointment from appointment table
         TableView.TableViewSelectionModel<Appointment> selectionModel = appointmentTableView.getSelectionModel();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
@@ -276,8 +272,7 @@ public class AppointmentFormController implements Initializable {
 
         ObservableList<Appointment> customerAppointments = AppointmentDaoImpl.getCustomerAppointments(CustomerFormController.getPassedCustomer());
 
-        PopulateAppt(customerAppointments, appointmentTableView, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol);
-
+        PopulateAppt(customerAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
         //clear form
         titleTextField.clear();
         descriptionTextField.clear();
@@ -288,10 +283,10 @@ public class AppointmentFormController implements Initializable {
         monthCombo.setValue(null);
         dayCombo.setValue(null);
         yearCombo.setValue(null);
-        startAMRadio.setSelected(true);
-        endAMRadio.setSelected(true);
         startCombo.setValue(null);
         stopCombo.setValue(null);
+
+ */
 
     }
 
@@ -300,7 +295,7 @@ public class AppointmentFormController implements Initializable {
 
     @FXML
     void modifyBtn(ActionEvent event) throws Exception {
-        //FIX ME!
+        /*FIX ME!
 
         TableView.TableViewSelectionModel<Appointment> selectionModel = appointmentTableView.getSelectionModel();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
@@ -319,9 +314,7 @@ public class AppointmentFormController implements Initializable {
         int date = Integer.parseInt(dayCombo.getSelectionModel().getSelectedItem().toString());
         int hour = startCombo.getSelectionModel().getSelectedItem().getHour();
 
-        if(startPMRadio.isSelected() && startCombo.getSelectionModel().getSelectedItem().getHour() >= 1){
-            hour = hour + 12;
-        }
+
         int minute = startCombo.getSelectionModel().getSelectedItem().getMinute();
         int second = 0;
         int nano = 0;
@@ -333,15 +326,13 @@ public class AppointmentFormController implements Initializable {
         int esecond = 0;
         int enano = 0;
 
-        if(endPMRadio.isSelected() && stopCombo.getSelectionModel().getSelectedItem().getHour() >= 1){
-            hour = hour + 12;
-        }
 
         Timestamp end = new Timestamp(year, month, date, ehour, eminute, esecond, enano);
 
         String createdBy = LogInFormController.getCurrentUser().getUserName();
         Timestamp createdDate = new Timestamp(System.currentTimeMillis());
         int contactId = contactCombo.getSelectionModel().getSelectedItem().getContactId();
+        int userId = userCombo.getSelectionModel().getSelectedItem().getUserId();
 
         //check if customer combo has been changed
         if(customerCombo.getSelectionModel().getSelectedItem() != currentCustomer){
@@ -349,22 +340,23 @@ public class AppointmentFormController implements Initializable {
             System.out.println("new customer was selected");
             int customerId = customerCombo.getSelectionModel().getSelectedItem().getCustomerId();
             Customer changedCustomer = customerCombo.getSelectionModel().getSelectedItem();
-            Appointment newAppointment = new Appointment(0, title, description, location, type, start, end, createdBy, createdDate, customerId, contactId);
+            Appointment newAppointment = new Appointment(0, title, description, location, type, start, end, createdBy, createdDate, customerId, contactId, userId);
 
             AppointmentDaoImpl.insertAppointment(changedCustomer, newAppointment);
         }
         else {
             int customerId = customerCombo.getSelectionModel().getSelectedItem().getCustomerId();
 
-            Appointment updatedAppointment = new Appointment(appId, title, description, location, type, start, end, createdBy, createdDate, customerId, contactId);
+            Appointment updatedAppointment = new Appointment(appId, title, description, location, type, start, end, createdBy, createdDate, customerId, contactId, userId);
             AppointmentDaoImpl.updateAppointment(CustomerFormController.getPassedCustomer(), updatedAppointment);
         }
         //repopulate table
 
         ObservableList<Appointment> customerAppointments = AppointmentDaoImpl.getCustomerAppointments(CustomerFormController.getPassedCustomer());
 
-        PopulateAppt(customerAppointments, appointmentTableView, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol);
+        PopulateAppt(customerAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
 
+         */
 
     }
 
@@ -383,6 +375,10 @@ public class AppointmentFormController implements Initializable {
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
         ObservableList<Appointment> selectedCustomer = selectionModel.getSelectedItems();
         Appointment appointment = selectedCustomer.get(0);
+
+        //disable add button and enable modify button
+        btnToAdd.setDisable(true);
+        btnToModify.setDisable(false);
 
         //set text fields
 
@@ -413,71 +409,9 @@ public class AppointmentFormController implements Initializable {
         //set customer combo
         customerCombo.setValue(currentCustomer);
 
-        if(appointment.getStartTime().toLocalDateTime().getHour() < 12){
-            startAMRadio.setSelected(true);
-        }
-        else{
-            startPMRadio.setSelected(true);
-            startCombo.getItems().clear();
-
-            LocalTime nstart = LocalTime.NOON;
-            LocalTime nend = LocalTime.of(14, 55);
-            while (nstart.isBefore(nend.plusSeconds(1))) {
-
-                if(nstart.getHour() < 13){
-                    startCombo.getItems().add(nstart);
-                    nstart = nstart.plusMinutes(15);
-                }
-                else {
-                    startCombo.getItems().add(nstart.minusHours(12));
-                    nstart = nstart.plusMinutes(15);
-                }
-
-            }
-
-        }
-
-        if(appointment.getEndTime().toLocalDateTime().getHour() < 12){
-            endAMRadio.setSelected(true);
-        }
-        else{
-            endPMRadio.setSelected(true);
-
-            startCombo.getItems().clear();
-            LocalTime sstart = LocalTime.NOON;
-            LocalTime send = LocalTime.of(14, 55);
-            while (sstart.isBefore(send.plusSeconds(1))) {
-
-                if(sstart.getHour() < 13){
-                    startCombo.getItems().add(sstart);
-                    sstart = sstart.plusMinutes(15);
-                }
-                else {
-                    startCombo.getItems().add(sstart.minusHours(12));
-                    sstart = sstart.plusMinutes(15);
-                }
-            }
-
-
             stopCombo.getItems().clear();
 
-            LocalTime start = LocalTime.NOON;
-            LocalTime end = LocalTime.of(14, 55);
-            while (start.isBefore(end.plusSeconds(1))) {
 
-                if(start.getHour() < 13){
-                    stopCombo.getItems().add(start);
-                    start = start.plusMinutes(15);
-                }
-                else {
-                    stopCombo.getItems().add(start.minusHours(12));
-                    start = start.plusMinutes(15);
-                }
-            }
-        }
-
-        startCombo.setValue(appointment.getStartTime().toLocalDateTime().toLocalTime());
-        stopCombo.setValue(appointment.getEndTime().toLocalDateTime().toLocalTime());
 
     }
 
@@ -487,17 +421,20 @@ public class AppointmentFormController implements Initializable {
         TableView.TableViewSelectionModel <Appointment> selectionModel = appointmentTableView.getSelectionModel();
         selectionModel.clearSelection();
 
+        //disable modify button and enable add button
+        btnToModify.setDisable(true);
+        btnToAdd.setDisable(false);
+
         titleTextField.clear();
         descriptionTextField.clear();
         locationTextField.clear();
         typeTextField.clear();
+        userCombo.setValue(null);
         customerCombo.setValue(null);
         contactCombo.setValue(null);
         monthCombo.setValue(null);
         dayCombo.setValue(null);
-        yearCombo.setValue(null);
-        startAMRadio.setSelected(true);
-        endAMRadio.setSelected(true);
+        yearCombo.setValue(Year.of(2022));
         startCombo.setValue(null);
         stopCombo.setValue(null);
 
@@ -537,113 +474,19 @@ public class AppointmentFormController implements Initializable {
 
     @FXML
     void setStartCorrectTime(MouseEvent event) {
-        if(startAMRadio.isSelected()){
-            //startAMRadio.setSelected(true);
-            startCombo.setValue(null);
-            stopCombo.setValue(null);
-            stopCombo.getItems().clear();
-            LocalTime initStart = LocalTime.of(8, 0);
-            LocalTime initEnd = LocalTime.of(11, 55);
-            while (initStart.isBefore(initEnd.plusSeconds(1))) {
-                stopCombo.getItems().add(initStart);
-                initStart = initStart.plusMinutes(15);
-            }
 
-            startCombo.getItems().clear();
-            System.out.println("entered start AM.....");
-            LocalTime ninitStart = LocalTime.of(8, 0);
-            LocalTime ninitEnd = LocalTime.of(11, 50);
-            while (ninitStart.isBefore(ninitEnd.plusSeconds(1))) {
-                startCombo.getItems().add(ninitStart);
-                ninitStart = ninitStart.plusMinutes(15);
-            }
 
-        }
 
-        if(startPMRadio.isSelected()){
-            endPMRadio.setSelected(true);
-            System.out.println("entered start PM.....");
-            startCombo.getItems().clear();
-            stopCombo.getItems().clear();
-
-            LocalTime start = LocalTime.NOON;
-            LocalTime end = LocalTime.of(14, 55);
-            while (start.isBefore(end.plusSeconds(1))) {
-
-                if(start.getHour() < 13){
-                    startCombo.getItems().add(start);
-                    start = start.plusMinutes(15);
-                }
-                else {
-                    startCombo.getItems().add(start.minusHours(12));
-                    start = start.plusMinutes(15);
-                }
-
-            }
-
-            LocalTime st = LocalTime.NOON;
-            LocalTime en = LocalTime.of(14, 55);
-            while (st.isBefore(en.plusSeconds(1))) {
-
-                if(st.getHour() < 13){
-                    stopCombo.getItems().add(st);
-                    st = st.plusMinutes(15);
-                }
-                else {
-                    stopCombo.getItems().add(st.minusHours(12));
-                    st = st.plusMinutes(15);
-                }
-
-            }
-
-        }
     }
+
+
+
 
     @FXML
     void setEndCorrectTime(MouseEvent event) {
-        if(endAMRadio.isSelected()){
-            startAMRadio.setSelected(true);
-            startCombo.setValue(null);
-            stopCombo.setValue(null);
-            stopCombo.getItems().clear();
-            LocalTime initStart = LocalTime.of(8, 0);
-            LocalTime initEnd = LocalTime.of(11, 55);
-            while (initStart.isBefore(initEnd.plusSeconds(1))) {
-                stopCombo.getItems().add(initStart);
-                initStart = initStart.plusMinutes(15);
-            }
 
-            startCombo.getItems().clear();
-            System.out.println("entered start AM.....");
-            LocalTime ninitStart = LocalTime.of(8, 0);
-            LocalTime ninitEnd = LocalTime.of(11, 50);
-            while (ninitStart.isBefore(ninitEnd.plusSeconds(1))) {
-                startCombo.getItems().add(ninitStart);
-                ninitStart = ninitStart.plusMinutes(15);
-            }
 
-        }
 
-        if(endPMRadio.isSelected()){
-            System.out.println("entered start PM.....");
-            stopCombo.getItems().clear();
-
-            LocalTime start = LocalTime.NOON;
-            LocalTime end = LocalTime.of(14, 55);
-            while (start.isBefore(end.plusSeconds(1))) {
-
-                if(start.getHour() < 13){
-                    stopCombo.getItems().add(start);
-                    start = start.plusMinutes(15);
-                }
-                else {
-                    stopCombo.getItems().add(start.minusHours(12));
-                    start = start.plusMinutes(15);
-                }
-
-            }
-
-        }
     }
 
     private static Customer passedCustomer;
@@ -652,17 +495,24 @@ public class AppointmentFormController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        //set modify button disabled
+        btnToModify.setDisable(true);
+
         ObservableList<Appointment> customerAppointments = null;
+        ObservableList<User> allUsers = null;
 
         try {
             customerAppointments = AppointmentDaoImpl.getCustomerAppointments(CustomerFormController.getPassedCustomer());
             allCustomers = CustomerDaoImpl.getAllCustomers();
+            allUsers = UserDaoImpl.getAllUsers();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        PopulateAppt(customerAppointments, appointmentTableView, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol);
+
+
+        PopulateAppt(customerAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
 
         //get customer and Appointment from customer form
 
@@ -674,6 +524,8 @@ public class AppointmentFormController implements Initializable {
         for (int m = 1; m < 13; ++m) {
             monthCombo.getItems().add(Month.of(m));
         }
+
+        monthCombo.setValue(Month.JANUARY);
 
         //populate yearCombo
         yearCombo.setPromptText("Year");
@@ -703,41 +555,36 @@ public class AppointmentFormController implements Initializable {
             e.printStackTrace();
         }
         contactCombo.setItems(allContacts);
-        contactCombo.setPromptText("Choose contact");
-
-
-        startAMRadio.setSelected(true);
-        endAMRadio.setSelected(true);
-        startCombo.setPromptText("Start time");
-        stopCombo.setPromptText("Stop time");
 
         //set customer combo box
         customerCombo.setItems(allCustomers);
 
+        //set user combo box
+        userCombo.setItems(allUsers);
+
         //set Time combo boxes
         startCombo.getItems().clear();
-        System.out.println("entered start AM.....");
-        LocalTime initStart = LocalTime.of(8, 0);
-        LocalTime initEnd = LocalTime.of(11, 55);
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm a");
+        DateTimeFormatter reverse = DateTimeFormatter.ofPattern("HH:mm");
+
+        LocalDateTime start = LocalDateTime.of(LocalDate.now(), businessStart);
+        LocalDateTime stop = LocalDateTime.of(LocalDate.now(), businessEnd);
+
+        //convert to local time zone
+        LocalTime initStart = Timezone.EasternToLocal(start).toLocalTime();
+        LocalTime initEnd = Timezone.EasternToLocal(stop).toLocalTime();
         while (initStart.isBefore(initEnd.plusSeconds(1))) {
-            startCombo.getItems().add(initStart);
+            startCombo.getItems().add(dtf.format(initStart));
+            stopCombo.getItems().add(dtf.format(initStart));
+
+            String s = reverse.format(initStart);
+
+            System.out.println(LocalTime.parse(s));
             initStart = initStart.plusMinutes(15);
         }
 
-        stopCombo.getItems().clear();
-        LocalTime einitStart = LocalTime.NOON;
-        LocalTime einitEnd = LocalTime.of(15, 55);
-        while (einitStart.isBefore(einitEnd.plusSeconds(1))) {
 
-            if(einitStart.getHour() < 13){
-                stopCombo.getItems().add(einitStart);
-                einitStart = einitStart.plusMinutes(15);
-            }
-            else {
-                stopCombo.getItems().add(einitStart.minusHours(12));
-                einitStart = einitStart.plusMinutes(15);
-            }
-        }
 
 
         //FIX ME change radio buttons based on time;
