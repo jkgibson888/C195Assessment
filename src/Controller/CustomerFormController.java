@@ -60,15 +60,15 @@ public class CustomerFormController implements Initializable {
     }
 
     //populate customer table
-    public void PopulateTable(ObservableList<Customer> tableList, TableView<Customer> tableView, TableColumn<Customer, Integer> Column1, TableColumn<Customer, String> Column2, TableColumn<Customer, String> Column3, TableColumn<Customer, String> Column4, TableColumn<Customer, String> Column5){
+    public void PopulateTable(ObservableList<Customer> tableList, TableView<Customer> tableView, TableColumn<Customer, String> Column1, TableColumn<Customer, String> Column2, TableColumn<Customer, String> Column3, TableColumn<Customer, String> Column4, TableColumn<Customer, String> Column5, TableColumn<Customer, String> Column6){
 
         tableView.setItems(tableList);
-
-        Column1.setCellValueFactory(new PropertyValueFactory<>("customerId"));
-        Column2.setCellValueFactory(new PropertyValueFactory<>("customerName"));
-        Column3.setCellValueFactory(new PropertyValueFactory<>("fullAddress"));
-        Column4.setCellValueFactory(new PropertyValueFactory<>("postalCode"));
-        Column5.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
+        Column1.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+        Column2.setCellValueFactory(new PropertyValueFactory<>("address"));
+        Column3.setCellValueFactory(new PropertyValueFactory<>("division"));
+        Column4.setCellValueFactory(new PropertyValueFactory<>("countryName"));
+        Column5.setCellValueFactory(new PropertyValueFactory<>("postalCode"));
+        Column6.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
 
     }
 
@@ -94,7 +94,10 @@ public class CustomerFormController implements Initializable {
     private TextFlow errorTextFlow;
 
     @FXML
-    private TableColumn<Customer, Integer> idCol;
+    private TableColumn<Customer, String> divisionCol;
+
+    @FXML
+    private TableColumn<Customer, String> countryCol;
 
     @FXML
     private TableColumn<Customer, String> nameCol;
@@ -134,7 +137,7 @@ public class CustomerFormController implements Initializable {
 
         allCustomers = CustomerDaoImpl.getAllCustomers();
 
-        PopulateTable(allCustomers, customerView, idCol, nameCol, addressCol, postalCol, phoneCol);
+        PopulateTable(allCustomers, customerView, nameCol, addressCol, divisionCol, countryCol, postalCol, phoneCol);
 
     }
 
@@ -245,7 +248,7 @@ public class CustomerFormController implements Initializable {
             e.printStackTrace();
         }
 
-        PopulateTable(allCustomers, customerView, idCol, nameCol, addressCol, postalCol, phoneCol);
+        PopulateTable(allCustomers, customerView, nameCol, addressCol, divisionCol, countryCol, postalCol, phoneCol);
 
         //clear form
         customerIdTextField.clear();
@@ -279,7 +282,7 @@ public class CustomerFormController implements Initializable {
 
         allCustomers = CustomerDaoImpl.getAllCustomers();
 
-        PopulateTable(allCustomers, customerView, idCol, nameCol, addressCol, postalCol, phoneCol);
+        PopulateTable(allCustomers, customerView, nameCol, addressCol, divisionCol, countryCol, postalCol, phoneCol);
 
     }
 
@@ -329,7 +332,7 @@ public class CustomerFormController implements Initializable {
             e.printStackTrace();
         }
 
-        PopulateTable(allCustomers, customerView, idCol, nameCol, addressCol, postalCol, phoneCol);
+        PopulateTable(allCustomers, customerView, nameCol, addressCol, divisionCol, countryCol, postalCol, phoneCol);
 
         //set country combo box
         countryCombo.setItems(allCountries);

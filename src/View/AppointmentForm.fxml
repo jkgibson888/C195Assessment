@@ -24,7 +24,7 @@
                         <Font size="18.0" />
                      </font>
                      <VBox.margin>
-                        <Insets bottom="20.0" left="250.0" top="20.0" />
+                        <Insets bottom="20.0" left="375.0" top="20.0" />
                      </VBox.margin>
                   </Label>
                   <TableView fx:id="appointmentTableView" onMouseClicked="#selectAppointmentAction" prefHeight="200.0" prefWidth="200.0">

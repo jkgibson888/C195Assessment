@@ -72,7 +72,7 @@ public class Appointment {
             }
         }
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM-dd-yyyy hh:mm a");
         //String s = dtf.format(startTime.toLocalDateTime());
         start = dtf.format(startTime.toLocalDateTime());
         stop = dtf.format(endTime.toLocalDateTime());
@@ -198,5 +198,13 @@ public class Appointment {
 
     public void setContactName(String contactName) {
         this.contactName = contactName;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 }

@@ -29,13 +29,13 @@ import java.net.URL;
 import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.util.ResourceBundle;
-import java.util.TimeZone;
 
-public class AppointmentFormController implements Initializable {
+public class CalendarFormController implements Initializable {
 
     ObservableList<Customer> allCustomers = FXCollections.observableArrayList();
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMM-dd-yyy HH:mm a");
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-yyy HH:mm a");
     //farthest year for the appointments
     private final String LAST_YEAR = "2035";
     private ObservableList<Contact> allContacts = FXCollections.observableArrayList();
@@ -43,11 +43,11 @@ public class AppointmentFormController implements Initializable {
 
     //time formatters
     DateTimeFormatter amFormatter = DateTimeFormatter.ofPattern("hh:mm a");
-    DateTimeFormatter amReverse = DateTimeFormatter.ofPattern("HH:mm a");
+    DateTimeFormatter amReverse = DateTimeFormatter.ofPattern("HH:mm");
 
     //start and end of business hours
     private static LocalTime businessStart = LocalTime.of(8, 0);
-    private static LocalTime businessEnd = LocalTime.of(22, 0);
+    private static LocalTime businessEnd = LocalTime.of(23, 0);
 
 
     //Method to switch scenes
@@ -95,6 +95,15 @@ public class AppointmentFormController implements Initializable {
         Column10.setCellValueFactory(new PropertyValueFactory<>("userName"));
 
     }
+
+    @FXML
+    private RadioButton allAppointmentsRB;
+
+    @FXML
+    private RadioButton thisMonthAppointmentsRB;
+
+    @FXML
+    private RadioButton thisWeekRB;
 
     @FXML
     private TextField appIdTextField;
@@ -187,6 +196,69 @@ public class AppointmentFormController implements Initializable {
     }
 
     @FXML
+    void allAppointmentsSelected(ActionEvent event) throws Exception {
+
+        appointmentTableView.getItems().clear();
+
+        ObservableList<Appointment> allAppointments= AppointmentDaoImpl.getAllAppointments();
+
+        PopulateAppt(allAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
+
+    }
+
+    @FXML
+    void thisMonthSelected(ActionEvent event) throws Exception {
+
+        appointmentTableView.getItems().clear();
+
+        ObservableList<Appointment> allAppointments= AppointmentDaoImpl.getAllAppointments();
+
+        ObservableList<Appointment> thisMonthAppointments = FXCollections.observableArrayList();
+
+        for(Appointment app: allAppointments){
+
+            //System.out.println(app.getStartTime().toLocalDateTime().getMonth());
+            //System.out.println(LocalDateTime.now().getMonth());
+            if(app.getStartTime().toLocalDateTime().getMonth() == LocalDateTime.now().getMonth()){
+                thisMonthAppointments.add(app);
+                System.out.println(app.getStartTime().toLocalDateTime().getMonth());
+            }
+        }
+
+        PopulateAppt(thisMonthAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
+
+
+    }
+
+    @FXML
+    void thisWeekSelected(ActionEvent event) throws Exception {
+
+        appointmentTableView.getItems().clear();
+
+        ObservableList<Appointment> allAppointments= AppointmentDaoImpl.getAllAppointments();
+
+        ObservableList<Appointment> thisWeekAppointments = FXCollections.observableArrayList();
+
+        for(Appointment app: allAppointments){
+
+            //get monday of the current local time week
+            LocalDate monday = LocalDate.now().with(ChronoField.DAY_OF_WEEK, 1);
+            LocalDate nextMonday = monday.plusDays(7);
+            System.out.println(monday);
+
+            //System.out.println(LocalDateTime.now().getMonth());
+            if(app.getStartTime().toLocalDateTime().toLocalDate().isAfter(monday) && app.getStartTime().toLocalDateTime().toLocalDate().isBefore(nextMonday)){
+
+                thisWeekAppointments.add(app);
+                System.out.println(app.getStartTime().toLocalDateTime().toLocalDate().compareTo(monday));
+            }
+        }
+
+        PopulateAppt(thisWeekAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
+
+    }
+
+    @FXML
     void addBtn(ActionEvent event) throws Exception {
 
         //int appId = 0;
@@ -200,7 +272,7 @@ public class AppointmentFormController implements Initializable {
         int month = monthCombo.getSelectionModel().getSelectedItem().getValue();
         int day = Integer.parseInt(dayCombo.getSelectionModel().getSelectedItem().toString());
 
-
+        DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_TIME;
         //format start time for timestamp
         LocalTime reverse = LocalTime.parse(startCombo.getSelectionModel().getSelectedItem(), amFormatter);
 
@@ -226,25 +298,15 @@ public class AppointmentFormController implements Initializable {
         int contactId = contactCombo.getSelectionModel().getSelectedItem().getContactId();
         int userId = userCombo.getSelectionModel().getSelectedItem().getUserId();
 
-        //check if customer combo is still the same selected
-        if(customerCombo.getSelectionModel().getSelectedItem() != currentCustomer){
 
-            System.out.println("new customer was selected");
-            int changedCustomerId = customerCombo.getSelectionModel().getSelectedItem().getCustomerId();
-            Customer changedCustomer = customerCombo.getSelectionModel().getSelectedItem();
-            Appointment newAppointment = new Appointment(0, title, description, location, type, start, stop, createdBy, createdDate, changedCustomerId, contactId, userId);
-
-            AppointmentDaoImpl.insertAppointment(changedCustomer, newAppointment);
-        }
-        else {
             Appointment appointment = new Appointment(0, title, description, location, type, start, stop, createdBy, createdDate, customerId, contactId, userId);
-            AppointmentDaoImpl.insertAppointment(CustomerFormController.getPassedCustomer(), appointment);
-        }
-        //repopulate table
+            AppointmentDaoImpl.insertAppointment(customerCombo.getSelectionModel().getSelectedItem(), appointment);
 
-        ObservableList<Appointment> customerAppointments = AppointmentDaoImpl.getCustomerAppointments(currentCustomer);
+                //repopulate table
 
-        PopulateAppt(customerAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
+        ObservableList<Appointment> allAppointments = AppointmentDaoImpl.getAllAppointments();
+
+        PopulateAppt(allAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
 
         //clear form
         titleTextField.clear();
@@ -259,6 +321,9 @@ public class AppointmentFormController implements Initializable {
         yearCombo.setValue(Year.of(2022));
         startCombo.setValue(null);
         stopCombo.setValue(null);
+
+        btnToAdd.setDisable(true);
+        btnToModify.setDisable(false);
     }
 
 
@@ -290,22 +355,25 @@ public class AppointmentFormController implements Initializable {
 
         //repopulate table
 
-        ObservableList<Appointment> customerAppointments = AppointmentDaoImpl.getCustomerAppointments(CustomerFormController.getPassedCustomer());
+        ObservableList<Appointment> allAppointments = AppointmentDaoImpl.getAllAppointments();
 
-        PopulateAppt(customerAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
+        PopulateAppt(allAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
         //clear form
         titleTextField.clear();
         descriptionTextField.clear();
         locationTextField.clear();
         typeTextField.clear();
+        userCombo.setValue(null);
         customerCombo.setValue(null);
         contactCombo.setValue(null);
-        monthCombo.setValue(null);
+        monthCombo.setValue(Month.JANUARY);
         dayCombo.setValue(null);
-        yearCombo.setValue(null);
+        yearCombo.setValue(Year.of(2022));
         startCombo.setValue(null);
         stopCombo.setValue(null);
-        userCombo.setValue(null);
+
+        btnToAdd.setDisable(true);
+        btnToModify.setDisable(false);
 
     }
 
@@ -331,12 +399,11 @@ public class AppointmentFormController implements Initializable {
         int month = monthCombo.getSelectionModel().getSelectedItem().getValue();
         int day = Integer.parseInt(dayCombo.getSelectionModel().getSelectedItem().toString());
 
-
         //format start time for timestamp
 
         LocalTime reverse = LocalTime.parse(startCombo.getSelectionModel().getSelectedItem(), amFormatter);
 
-       // System.out.println(initial);
+        // System.out.println(initial);
 
         LocalDate ldStart = LocalDate.of(year, month, day);
         LocalDateTime ldtStart = LocalDateTime.of(ldStart, reverse);
@@ -357,41 +424,34 @@ public class AppointmentFormController implements Initializable {
         int contactId = contactCombo.getSelectionModel().getSelectedItem().getContactId();
         int userId = userCombo.getSelectionModel().getSelectedItem().getUserId();
 
-        //check if customer combo has been changed
-        if(customerCombo.getSelectionModel().getSelectedItem() != currentCustomer){
 
-            System.out.println("new customer was selected");
-            int customerId = customerCombo.getSelectionModel().getSelectedItem().getCustomerId();
-            Customer changedCustomer = customerCombo.getSelectionModel().getSelectedItem();
-            Appointment newAppointment = new Appointment(0, title, description, location, type, start, stop, createdBy, createdDate, customerId, contactId, userId);
-
-            AppointmentDaoImpl.insertAppointment(changedCustomer, newAppointment);
-        }
-        else {
             int customerId = customerCombo.getSelectionModel().getSelectedItem().getCustomerId();
 
             Appointment updatedAppointment = new Appointment(appId, title, description, location, type, start, stop, createdBy, createdDate, customerId, contactId, userId);
-            AppointmentDaoImpl.updateAppointment(CustomerFormController.getPassedCustomer(), updatedAppointment);
-        }
+            AppointmentDaoImpl.updateAppointment(customerCombo.getSelectionModel().getSelectedItem(), updatedAppointment);
+
         //repopulate table
 
-        ObservableList<Appointment> customerAppointments = AppointmentDaoImpl.getCustomerAppointments(CustomerFormController.getPassedCustomer());
+        ObservableList<Appointment> allAppointments = AppointmentDaoImpl.getAllAppointments();
 
-        PopulateAppt(customerAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
+        PopulateAppt(allAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
 
         //clear form
         titleTextField.clear();
         descriptionTextField.clear();
         locationTextField.clear();
         typeTextField.clear();
+        userCombo.setValue(null);
         customerCombo.setValue(null);
         contactCombo.setValue(null);
-        monthCombo.setValue(null);
+        monthCombo.setValue(Month.JANUARY);
         dayCombo.setValue(null);
-        yearCombo.setValue(null);
+        yearCombo.setValue(Year.of(2022));
         startCombo.setValue(null);
         stopCombo.setValue(null);
-        userCombo.setValue(null);
+
+        btnToAdd.setDisable(true);
+        btnToModify.setDisable(false);
 
     }
 
@@ -399,7 +459,7 @@ public class AppointmentFormController implements Initializable {
     void returnToMainBtn(ActionEvent event) throws IOException {
 
         //return to main form
-        ChangeScene(event, "/View/CustomerForm.fxml");
+        ChangeScene(event, "/View/MainForm.fxml");
 
     }
 
@@ -408,8 +468,8 @@ public class AppointmentFormController implements Initializable {
 
         TableView.TableViewSelectionModel<Appointment> selectionModel = appointmentTableView.getSelectionModel();
         selectionModel.setSelectionMode(SelectionMode.SINGLE);
-        ObservableList<Appointment> selectedCustomer = selectionModel.getSelectedItems();
-        Appointment appointment = selectedCustomer.get(0);
+        ObservableList<Appointment> selectedAppointment = selectionModel.getSelectedItems();
+        Appointment appointment = selectedAppointment.get(0);
 
         //disable add button and enable modify button
         btnToAdd.setDisable(true);
@@ -451,9 +511,18 @@ public class AppointmentFormController implements Initializable {
         startCombo.setValue(amFormatter.format(appointment.getStartTime().toLocalDateTime().toLocalTime()));
         stopCombo.setValue(amFormatter.format(appointment.getEndTime().toLocalDateTime().toLocalTime()));
 
+        Customer selectedCustomer = null;
+
+        for(Customer customer: allCustomers){
+
+            if(customer.getCustomerId() == appointment.getCustomerId()){
+                selectedCustomer = customer;
+            }
+
+        }
 
         //set customer combo
-        customerCombo.setValue(currentCustomer);
+        customerCombo.setValue(selectedCustomer);
 
     }
 
@@ -514,22 +583,6 @@ public class AppointmentFormController implements Initializable {
         }
     }
 
-    @FXML
-    void setStartCorrectTime(MouseEvent event) {
-
-
-
-    }
-
-
-
-
-    @FXML
-    void setEndCorrectTime(MouseEvent event) {
-
-
-
-    }
 
     private static Customer passedCustomer;
 
@@ -540,11 +593,14 @@ public class AppointmentFormController implements Initializable {
         //set modify button disabled
         btnToModify.setDisable(true);
 
-        ObservableList<Appointment> customerAppointments = null;
+        //set all appointments rb selected
+        allAppointmentsRB.setSelected(true);
+
+        ObservableList<Appointment> allAppointments = null;
         ObservableList<User> allUsers = null;
 
         try {
-            customerAppointments = AppointmentDaoImpl.getCustomerAppointments(CustomerFormController.getPassedCustomer());
+            allAppointments = AppointmentDaoImpl.getAllAppointments();
             allCustomers = CustomerDaoImpl.getAllCustomers();
             allUsers = UserDaoImpl.getAllUsers();
 
@@ -554,11 +610,11 @@ public class AppointmentFormController implements Initializable {
 
 
 
-        PopulateAppt(customerAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
+        PopulateAppt(allAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
 
         //get customer and Appointment from customer form
 
-        passedCustomer = AppointmentFormController.getCustomer();
+        passedCustomer = CalendarFormController.getCustomer();
 
         //populate month combo
         for (int m = 1; m < 13; ++m) {
@@ -594,7 +650,6 @@ public class AppointmentFormController implements Initializable {
 
         //set customer combo box
         customerCombo.setItems(allCustomers);
-        customerCombo.setValue(CustomerFormController.getPassedCustomer());
 
         //set user combo box
         userCombo.setItems(allUsers);
@@ -605,7 +660,7 @@ public class AppointmentFormController implements Initializable {
         LocalDateTime start = LocalDateTime.of(LocalDate.now(), businessStart);
         LocalDateTime stop = LocalDateTime.of(LocalDate.now(), businessEnd);
 
-        //convert to local time zone
+        //convert business hours to local time zone
         LocalTime initStart = Timezone.EasternToLocal(start).toLocalTime();
         LocalTime initEnd = Timezone.EasternToLocal(stop).toLocalTime();
         while (initStart.isBefore(initEnd.plusSeconds(1))) {
@@ -613,11 +668,11 @@ public class AppointmentFormController implements Initializable {
             startCombo.getItems().add(amFormatter.format(initStart));
             stopCombo.getItems().add(amFormatter.format(initStart));
 
-            /*String s = amReverse.format(initStart);
+            String s = amReverse.format(initStart);
             LocalTime reverse = LocalTime.parse(s, amReverse);
             System.out.println(reverse);
 
-            System.out.println(LocalTime.parse(s));*/
+            System.out.println(LocalTime.parse(s));
             initStart = initStart.plusMinutes(5);
         }
 

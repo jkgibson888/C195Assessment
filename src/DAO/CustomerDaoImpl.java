@@ -106,12 +106,14 @@ public class CustomerDaoImpl {
         JDBC.closeConnection();
     }
 
-    public static Customer searchCustomer(int customerNum) throws SQLException {
+    public static Customer searchCustomer(int customerNum) throws Exception {
         //connect to database
         JDBC.openConnection();
 
         //sql statement and query to retrieve customer from database
-        String sqlStatement = "Select * FROM customers WHERE Customer_ID = " + customerNum;
+        String select = "Select * FROM customers WHERE Customer_ID = " + customerNum;
+        String join = " INNER JOIN first_level_divisions ON customers.Division_ID = first_level_divisions.Division_ID";
+        String sqlStatement = select + join;
         Query.makeQuery(sqlStatement);
         ResultSet result = Query.getResult();
         Customer userResult = null;

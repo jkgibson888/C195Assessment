@@ -1,5 +1,7 @@
 package Model;
 
+import DAO.CountryDaoImpl;
+import DAO.FirstLevelDivisionDaoImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -23,10 +25,11 @@ public class Customer {
     private int divisionId;
     private String division;
     private String fullAddress;
+    private String countryName;
 
     //constructor for a customer object
 
-    public Customer(int customerId, String customerName, String address, String postalCode, String phoneNumber, Timestamp createDate, String createdBy, Timestamp lastUpdate, String lastUpdatedBy, int divisionId, String division, String fullAddress) {
+    public Customer(int customerId, String customerName, String address, String postalCode, String phoneNumber, Timestamp createDate, String createdBy, Timestamp lastUpdate, String lastUpdatedBy, int divisionId, String division, String fullAddress) throws Exception {
         this.customerId = customerId;
         this.customerName = customerName;
         this.address = address;
@@ -39,6 +42,23 @@ public class Customer {
         this.divisionId = divisionId;
         this.division = division;
         this.fullAddress = fullAddress;
+
+        ObservableList<Country> allCountries = CountryDaoImpl.getAllCountries();
+        ObservableList<FirstLevelDivision> flDivisions = FirstLevelDivisionDaoImpl.getAllFirstLevelDivisions();
+
+        int countryID = 0;
+
+        for(FirstLevelDivision fl: flDivisions){
+            if(divisionId == fl.getDivisionId()){
+                countryID = fl.getCountryId();
+            }
+        }
+        for(Country country: allCountries){
+            if(countryID == country.getCountryId()){
+                countryName = country.getCountry();
+            }
+
+        }
     }
 
 
@@ -147,6 +167,14 @@ public class Customer {
 
     public void setFullAddress(String fullAddress) {
         this.fullAddress = fullAddress;
+    }
+
+    public String getCountryName() {
+        return countryName;
+    }
+
+    public void setCountryName(String countryName) {
+        this.countryName = countryName;
     }
 
     //override string to string method to display country in combo boxes
