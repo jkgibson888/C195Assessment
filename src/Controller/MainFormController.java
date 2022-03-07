@@ -45,6 +45,11 @@ public class MainFormController implements Initializable {
         stage.show();
     }
 
+    /**
+     * Changes to the calendar form view.
+     * @param event The button being pressed.
+     * @throws IOException
+     */
     @FXML
     void appointmentBtnPressed(ActionEvent event) throws IOException {
 
@@ -52,6 +57,11 @@ public class MainFormController implements Initializable {
 
     }
 
+    /**
+     * Changes to the customer form.
+     * @param event The button being pressed.
+     * @throws IOException
+     */
     @FXML
     void customerBtnPressed(ActionEvent event) throws IOException {
 
@@ -59,6 +69,11 @@ public class MainFormController implements Initializable {
 
     }
 
+    /**
+     * Returns to the login screen.
+     * @param event The button being pressed.
+     * @throws IOException
+     */
     @FXML
     void logOutBtn(ActionEvent event) throws IOException {
 
@@ -66,6 +81,11 @@ public class MainFormController implements Initializable {
 
     }
 
+    /**
+     * Changes to the reports form.
+     * @param event The button being pressed.
+     * @throws IOException
+     */
     @FXML
     void reportsBtn(ActionEvent event) throws IOException {
 
@@ -73,6 +93,11 @@ public class MainFormController implements Initializable {
 
     }
 
+    /**
+     * Initializes the main form. Photos are open sourced stock photos.
+     * @param url
+     * @param resourceBundle
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         ObservableList<Appointment> allAppointments = null;

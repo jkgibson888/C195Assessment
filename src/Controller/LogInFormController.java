@@ -35,6 +35,10 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
 
+/**
+ * Controller class that implements the logic driving the login form.
+ * @author Joshua Gibson
+ */
 public class LogInFormController implements Initializable {
 
     //resource bundle
@@ -87,6 +91,11 @@ public class LogInFormController implements Initializable {
     private Label passwordLbl;
 
     //method to get and set the current user of the system
+
+    /**
+     * Method to get the current user using the program.
+     * @return Returns the current user using the program.
+     */
     public static User getCurrentUser() {
 
         return currentUser;
@@ -101,6 +110,12 @@ public class LogInFormController implements Initializable {
 
     public static User user;
 
+    /**
+     * Makes an attempt to match username and passwords with users in the database.
+     * Successful attempts allow access to the program. Success or failures are loged in a text file.
+     * @param event The button being pressed.
+     * @throws Exception
+     */
     @FXML
     void loginBtnPressed(ActionEvent event) throws Exception {
             System.out.println("in login btnpress....");

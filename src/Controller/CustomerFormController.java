@@ -30,6 +30,11 @@ import java.sql.Timestamp;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+/**
+ * Controller class that implements the logic driving the customer form.
+ *
+ * @author Joshua Gibson
+ */
 public class CustomerFormController implements Initializable {
 
     //get all countries, customers, and first level divisions
@@ -60,6 +65,18 @@ public class CustomerFormController implements Initializable {
     }
 
     //populate customer table
+
+    /**
+     * Populates a table view with customers.
+     * @param tableList The observable list of customer objects that table data is retrieved from.
+     * @param tableView The specific table view that will display the information.
+     * @param Column1 The first column, which displays the customer's name.
+     * @param Column2 The second column, which displays the customer's address.
+     * @param Column3 The third column, which displays the division associated with the customer.
+     * @param Column4 The fourth column, which displays the country associated with the customer.
+     * @param Column5 The fifth column, which displays the postal code associated with the customer.
+     * @param Column6 The sixth column, which displays the customer's phone number.
+     */
     public void PopulateTable(ObservableList<Customer> tableList, TableView<Customer> tableView, TableColumn<Customer, String> Column1, TableColumn<Customer, String> Column2, TableColumn<Customer, String> Column3, TableColumn<Customer, String> Column4, TableColumn<Customer, String> Column5, TableColumn<Customer, String> Column6){
 
         tableView.setItems(tableList);
@@ -117,6 +134,11 @@ public class CustomerFormController implements Initializable {
     @FXML
     private ComboBox<FirstLevelDivision> stateCombo;
 
+    /**
+     * Method that allows a customer to be added to the database.
+     * @param event The button being pressed.
+     * @throws Exception
+     */
     @FXML
     void addBtn(ActionEvent event) throws Exception {
 
@@ -142,11 +164,18 @@ public class CustomerFormController implements Initializable {
     }
 
     private static Customer passedCustomer;
-
+    /**
+     * Method to pass a customer to another form.
+     * @return The customer object that is being passed to another form.
+     */
     public static Customer getPassedCustomer() {
         return passedCustomer;
     }
 
+    /**
+     * Clears the forms text fields so that a new customer can be created.
+     * @param event The button being pressed.
+     */
     @FXML
     void clearForm(ActionEvent event) {
 
@@ -162,6 +191,11 @@ public class CustomerFormController implements Initializable {
 
     }
 
+    /**
+     * Retrieves a selected customer from the table view and then changes to the appointment form.
+     * @param event The button being pressed
+     * @throws IOException
+     */
     @FXML
     void customerAppBtn(ActionEvent event) throws IOException {
 
@@ -174,6 +208,10 @@ public class CustomerFormController implements Initializable {
 
     }
 
+    /**
+     * Retrieves a selected customer's information from the table and then populates the form's fields.
+     * @param event The customer being selected in the table view.
+     */
     @FXML
     void customerSelected(MouseEvent event) {
 
@@ -208,6 +246,11 @@ public class CustomerFormController implements Initializable {
 
     }
 
+    /**
+     * Method that allows a customer to be deleted from the database.
+     * @param event The button being pressed.
+     * @throws Exception
+     */
     @FXML
     void deleteBtn(ActionEvent event) throws Exception {
 
@@ -260,6 +303,11 @@ public class CustomerFormController implements Initializable {
         stateCombo.setValue(null);
     }
 
+    /**
+     * Method that allows a customer to be modified in the database.
+     * @param event The button being pressed.
+     * @throws Exception
+     */
     @FXML
     void modifyBtn(ActionEvent event) throws Exception {
 
@@ -286,6 +334,11 @@ public class CustomerFormController implements Initializable {
 
     }
 
+    /**
+     * Returns to the main form
+     * @param event The button being pressed.
+     * @throws Exception
+     */
     @FXML
     void returnBtn(ActionEvent event) throws IOException {
 
@@ -293,6 +346,11 @@ public class CustomerFormController implements Initializable {
 
     }
 
+    /**
+     * Gets the selected country from the country combo box and then populates the first level division combo box with appropriate values.
+     * @param event The country being selected in the country combo box.
+     * @throws Exception
+     */
     @FXML
     void selectCountryClick(ActionEvent event) throws Exception {
 
@@ -321,6 +379,11 @@ public class CustomerFormController implements Initializable {
 
     }
 
+    /**
+     * Initializes the form and populates the combo boxes and table view.
+     * @param url
+     * @param resourceBundle
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 

@@ -3,6 +3,10 @@ package DAO;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+/**
+ * Manages conections to the databse.
+ * @author Joshua Gibson
+ */
 public abstract class JDBC {
 
     private static final String protocol = "jdbc";
@@ -15,12 +19,15 @@ public abstract class JDBC {
     private static String password = "Passw0rd!"; // Password
     public static Connection connection;  // Connection Interface
 
+    /**
+     * Opens a connection to the database.
+     */
     public static void openConnection()
     {
         try {
             Class.forName(driver); // Locate Driver
             connection = DriverManager.getConnection(jdbcUrl, userName, password); // Reference Connection object
-            System.out.println("Connection successful!");
+            //System.out.println("Connection successful!");
         }
         catch(Exception e)
         {
@@ -28,10 +35,13 @@ public abstract class JDBC {
         }
     }
 
+    /**
+     * Closes the connection to the database.
+     */
     public static void closeConnection() {
         try {
             connection.close();
-            System.out.println("Connection closed!");
+            //System.out.println("Connection closed!");
         }
         catch(Exception e)
         {

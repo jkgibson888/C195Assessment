@@ -35,6 +35,13 @@ public class UserDaoImpl {
         JDBC.closeConnection();
         return null;
     }
+
+     /**
+      * Retrieves all users from the database and places them into an observable list.
+      * @return Observable list that contains all the users from the database.
+      * @throws SQLException
+      * @throws Exception
+      */
     public static ObservableList<User> getAllUsers() throws SQLException, Exception{
 
         //ObservableList to be returned containing all the users
@@ -61,6 +68,11 @@ public class UserDaoImpl {
     }
 
     //method to add users
+
+     /**
+      * Inserts a user into the database.
+      * @param user The new user that is to be inserted into the database.
+      */
     public static void insertUser(User user){
 
         //connect to the database

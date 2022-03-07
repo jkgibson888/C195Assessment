@@ -21,6 +21,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Allows the admin to view all users and add new users to the system.
+ * @author Joshua Gibson
+ */
 public class UserTestTableController implements Initializable {
 
     ObservableList<User> allUsers = FXCollections.observableArrayList();
@@ -81,6 +85,10 @@ public class UserTestTableController implements Initializable {
 
     }
 
+    /**
+     * Adds a new user to the system when the add button is clicked.
+     * @param event The button being clicked.
+     */
     @FXML
     void addNewUser(ActionEvent event) {
 
@@ -97,6 +105,11 @@ public class UserTestTableController implements Initializable {
 
     }
 
+    /**
+     * Returns to the login form.
+     * @param event The button being clicked.
+     * @throws IOException
+     */
     @FXML
     void ReturnToLogin(ActionEvent event) throws IOException {
 

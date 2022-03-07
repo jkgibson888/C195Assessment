@@ -3,13 +3,19 @@ package DAO;
 import Model.Contact;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
+/**
+ * @author Joshua Gibson
+ */
 public class ContactDaoImp {
-
+    /**
+     * Retrieves all contacts from the database and places them into an observable list.
+     * @return Observable list that contains all the contacts from the database.
+     * @throws SQLException
+     * @throws Exception
+     */
     public static ObservableList<Contact> getAllContacts() throws SQLException, Exception{
 
         //ObservableList to be returned containing all the countries

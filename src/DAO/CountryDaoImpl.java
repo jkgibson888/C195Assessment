@@ -1,16 +1,22 @@
 package DAO;
 
 import Model.Country;
-import Model.Customer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+/**
+ * @author Joshua Gibson
+ */
 public class CountryDaoImpl {
-
+    /**
+     * Retrieves all countries from the database and places them into an observable list.
+     * @return Observable list that contains all the countries from the database.
+     * @throws SQLException
+     * @throws Exception
+     */
     public static ObservableList<Country> getAllCountries() throws SQLException, Exception{
 
         //ObservableList to be returned containing all the countries
@@ -40,6 +46,12 @@ public class CountryDaoImpl {
         return allCountries;
     }
 
+    /**
+     * Searches for a country in the database using a passed divisionId.
+     * @param divisionId The search parameter that is used to select the appropriate country associated divisionId.
+     * @return The country associated with the passed division id.
+     * @throws SQLException
+     */
     public static Country searchCountry(int divisionId) throws SQLException {
 
         Country userResult = null;

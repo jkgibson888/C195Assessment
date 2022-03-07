@@ -252,7 +252,7 @@
                                           <Insets left="125.0" right="50.0" />
                                        </HBox.margin>
                                     </Button>
-                                    <Button mnemonicParsing="false" onAction="#returnToMainBtn" text="Return">
+                                    <Button mnemonicParsing="false" onAction="#returnToCustomerBtn" text="Return">
                                        <font>
                                           <Font size="14.0" />
                                        </font>

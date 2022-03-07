@@ -70,16 +70,20 @@ public class CalendarFormController implements Initializable {
     }
 
     /**
-     * Populates a table with a list of users.
-     * @param tableList The observable list to be displayed.
-     * @param tableView The specific table view that will be populated.
-     * @param Column1 The first column of the table view.
-     * @param Column2 The second column of the table view.
-     * @param Column3 The third column of the table view.
+     * Populates a table view with appointments
+     * @param tableList The observable list of appointment objects that table data is retrieved from.
+     * @param tableView The specific table view that will display the information.
+     * @param Column1 The first column, which displays the customers name.
+     * @param Column2 The second column, which displays the appointment ID.
+     * @param Column3 The third column, which displays the appointment's title.
+     * @param Column4 The fourth column, which displays the appointment's description.
+     * @param Column5 The fifth column, which displays the appointment's location.
+     * @param Column6 The sixth column, which displays the appointment's type.
+     * @param Column7 The seventh column, which displays the appointment's start time as a string.
+     * @param Column8 The eighth column, which displays the appointment's stop time as a string.
+     * @param Column9 The ninth column, which displays the name of the appointment's contact.
+     * @param Column10 The tenth column, which displays the user associated with the appointment.
      */
-
-     //populate an appointments table
-
     public void PopulateAppt(ObservableList<Appointment> tableList, TableView<Appointment> tableView, TableColumn<Appointment, String> Column1, TableColumn<Appointment,Integer> Column2, TableColumn<Appointment, String> Column3, TableColumn<Appointment, String> Column4, TableColumn<Appointment, String> Column5, TableColumn<Appointment, String> Column6, TableColumn<Appointment, String> Column7, TableColumn<Appointment, String> Column8, TableColumn<Appointment, String> Column9, TableColumn<Appointment, String> Column10){
 
         tableView.setItems(tableList);
@@ -96,6 +100,7 @@ public class CalendarFormController implements Initializable {
 
     }
 
+    //FX ids
     @FXML
     private RadioButton allAppointmentsRB;
 
@@ -188,13 +193,12 @@ public class CalendarFormController implements Initializable {
     @FXML
     private Button btnToModify;
 
-    //pass the customer to the modify screen
-    private static Customer modifyCustomer = null;
 
-    public static Customer getCustomer(){
-        return modifyCustomer;
-    }
-
+    /**
+     * Populates the table with all the appointments in the database.
+     * @param event The radio button is selected.
+     * @throws Exception
+     */
     @FXML
     void allAppointmentsSelected(ActionEvent event) throws Exception {
 
@@ -206,6 +210,11 @@ public class CalendarFormController implements Initializable {
 
     }
 
+    /**
+     * Populates the table with appointments that fall within the current calendar month.
+     * @param event The radio button is selected.
+     * @throws Exception
+     */
     @FXML
     void thisMonthSelected(ActionEvent event) throws Exception {
 
@@ -230,6 +239,11 @@ public class CalendarFormController implements Initializable {
 
     }
 
+    /**
+     * Populates the table with appointments that fall within the current calendar week.
+     * @param event The radio button is selected.
+     * @throws Exception
+     */
     @FXML
     void thisWeekSelected(ActionEvent event) throws Exception {
 
@@ -258,6 +272,11 @@ public class CalendarFormController implements Initializable {
 
     }
 
+    /**
+     * Method that allows an appointment to be added to the database.
+     * @param event The button being pressed.
+     * @throws Exception
+     */
     @FXML
     void addBtn(ActionEvent event) throws Exception {
 
@@ -300,7 +319,7 @@ public class CalendarFormController implements Initializable {
 
 
             Appointment appointment = new Appointment(0, title, description, location, type, start, stop, createdBy, createdDate, customerId, contactId, userId);
-            AppointmentDaoImpl.insertAppointment(customerCombo.getSelectionModel().getSelectedItem(), appointment);
+            AppointmentDaoImpl.insertAppointment(appointment);
 
                 //repopulate table
 
@@ -326,10 +345,11 @@ public class CalendarFormController implements Initializable {
         btnToModify.setDisable(false);
     }
 
-
-    private static Customer customer;
-
-
+    /**
+     * Method that allows an appointment to be deleted from the database.
+     * @param event The button being pressed.
+     * @throws Exception
+     */
     @FXML
     void deleteBtn(ActionEvent event) throws Exception {
 
@@ -377,9 +397,11 @@ public class CalendarFormController implements Initializable {
 
     }
 
-
-
-
+    /**
+     * Method that allows an appointment to be modified in the database.
+     * @param event The button being pressed.
+     * @throws Exception
+     */
     @FXML
     void modifyBtn(ActionEvent event) throws Exception {
 
@@ -428,7 +450,7 @@ public class CalendarFormController implements Initializable {
             int customerId = customerCombo.getSelectionModel().getSelectedItem().getCustomerId();
 
             Appointment updatedAppointment = new Appointment(appId, title, description, location, type, start, stop, createdBy, createdDate, customerId, contactId, userId);
-            AppointmentDaoImpl.updateAppointment(customerCombo.getSelectionModel().getSelectedItem(), updatedAppointment);
+            AppointmentDaoImpl.updateAppointment(updatedAppointment);
 
         //repopulate table
 
@@ -454,7 +476,11 @@ public class CalendarFormController implements Initializable {
         btnToModify.setDisable(false);
 
     }
-
+    /**
+     * Returns to the main form
+     * @param event The button being pressed.
+     * @throws Exception
+     */
     @FXML
     void returnToMainBtn(ActionEvent event) throws IOException {
 
@@ -463,6 +489,11 @@ public class CalendarFormController implements Initializable {
 
     }
 
+    /**
+     * Gets a selected field from the appointments table and then populates the text fields with the appointments data.
+     * @param event The appointment being clicked.
+     * @throws Exception
+     */
     @FXML
     void selectAppointmentAction(MouseEvent event) throws Exception {
 
@@ -526,6 +557,10 @@ public class CalendarFormController implements Initializable {
 
     }
 
+    /**
+     * Clears the forms text fields so that a new appointment can be created.
+     * @param event The button being pressed.
+     */
     @FXML
     void clearBtn(ActionEvent event) {
 
@@ -551,6 +586,10 @@ public class CalendarFormController implements Initializable {
 
     }
 
+    /**
+     * Populates the day combo box with the appropriate number of days for the given month and year.  Factors in leap years.
+     * @param event
+     */
     @FXML
     void setDayAction(MouseEvent event) {
         errorTextFlow.getChildren().clear();
@@ -583,10 +622,11 @@ public class CalendarFormController implements Initializable {
         }
     }
 
-
-    private static Customer passedCustomer;
-
-
+    /**
+     * Initializes the form and populates the combo boxes and table view.
+     * @param url
+     * @param resourceBundle
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -612,9 +652,6 @@ public class CalendarFormController implements Initializable {
 
         PopulateAppt(allAppointments, appointmentTableView, customerCol, idCol, titleCol, descriptionCol, locationCol, typeCol, startCol, stopCol, contactCol, userCol);
 
-        //get customer and Appointment from customer form
-
-        passedCustomer = CalendarFormController.getCustomer();
 
         //populate month combo
         for (int m = 1; m < 13; ++m) {
@@ -624,7 +661,7 @@ public class CalendarFormController implements Initializable {
         monthCombo.setValue(Month.JANUARY);
 
         //populate yearCombo
-        Year ystart = Year.now();
+        Year ystart = Year.of(2020);
         Year yend = Year.parse(LAST_YEAR);
 
         while (ystart.isBefore(yend)) {

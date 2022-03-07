@@ -4,6 +4,7 @@ import Controller.LogInFormController;
 import Controller.MainFormController;
 import Model.Appointment;
 import Model.Customer;
+import Model.MonthTypeApp;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -14,8 +15,16 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+/**
+ * @author Joshua Gibson
+ */
 public class AppointmentDaoImpl {
-
+    /**
+     * Retrieves all appointments from the database and places them into an observable list.
+     * @return Observable list that contains all the appointments from the database.
+     * @throws SQLException
+     * @throws Exception
+     */
     public static ObservableList<Appointment> getAllAppointments() throws SQLException, Exception {
 
         //ObservableList to be returned containing all the appointments for a customer
@@ -55,6 +64,13 @@ public class AppointmentDaoImpl {
         return allAppointments;
     }
 
+    /**
+     * Retrieves appointments from the database that are associated with the customer being passed into the method.
+     * @param customer The customer whose appointments are to be retrieved.
+     * @return
+     * @throws SQLException
+     * @throws Exception
+     */
     public static ObservableList<Appointment> getCustomerAppointments(Customer customer) throws SQLException, Exception{
 
         //ObservableList to be returned containing all the appointments for a customer
@@ -102,18 +118,13 @@ public class AppointmentDaoImpl {
     }
 
     //method to add appointment
-    public static void insertAppointment(Customer customer, Appointment appointment) throws SQLException {
 
-        //connect to the database
-
-        //FIX ME! contact id
-        //sql statement and query to insert new customer into database
-        /*String insert = "INSERT INTO appointments (Title, Description, Location, Type, Start, End, Create_Date, Created_By, Last_Update, Last_Updated_By, Customer_ID, User_ID, Contact_ID) ";
-        String values1 = "VALUES(\'" + appointment.getTitle() + "\', \'" + appointment.getDescription() + "\', \'" + appointment.getLocation() + "\', \'" + appointment.getType() + "\', ";
-        String values2 = "\'" + appointment.getStartTime() + "\', \'" + appointment.getEndTime() + "\', NOW(), \'" + LogInFormController.getCurrentUser().getUserName() + "\', NOW(), \'";
-        String values3 = LogInFormController.getCurrentUser().getUserName() + "\', \'" + customer.getCustomerId() + "\', \'" + appointment.getCustomerId() + "\', " + appointment.getContactId() + ")";
-        String sqlStatement = insert + values1 + values2 + values3;*/
-
+    /**
+     * Inserts an appointment into the database.
+     * @param appointment The appointment object that contains the information that will be inserted into the database.
+     * @throws SQLException
+     */
+    public static void insertAppointment(Appointment appointment) throws SQLException {
 
             String query = "INSERT INTO appointments ("
                     + " Title,"
@@ -165,33 +176,12 @@ public class AppointmentDaoImpl {
 
     //method to update customers appointment
 
-    public static void updateAppointment(Customer customer, Appointment appointment) throws Exception {
-
-        /*connect to database
-        JDBC.openConnection();
-        //sql statement and query to update a customer
-        String table = "UPDATE appointments ";
-        String title = "SET Title = \'" + appointment.getTitle() + "\', ";
-        String description = "Description = \'" + appointment.getDescription() + "\', ";
-        String location = "Location = \'" + appointment.getLocation() + "\', ";
-        String type = "Type = \'" + appointment.getType() + "\', ";
-        String start = "Start = \'" + appointment.getStartTime() + "\', ";
-        String end = "End = \'" + appointment.getEndTime() + "\', ";
-        String setLastUpdate = "Last_Update = NOW(), ";
-        String setUpdatedBy = "Last_Updated_By = \'" + LogInFormController.getCurrentUser().getUserName() + "\', ";
-        String customerId = "Customer_ID = " + customer.getCustomerId() + ", ";
-        String userId = "User_ID = " + appointment.getUserId() + ", ";
-        String contactId = "Contact_ID = " + appointment.getContactId();
-        String where = " WHERE Appointment_ID = " + appointment.getAppointmentId();
-
-        System.out.println("current appointment id " + appointment.getAppointmentId());
-        System.out.println(appointment.getAppointmentId());
-
-        String sqlStatement = table + title + description + location + type + start + end + setLastUpdate + setUpdatedBy + customerId + userId + contactId + where;
-        Query.makeQuery(sqlStatement);
-
-        //close database connection
-        JDBC.closeConnection();*/
+    /**
+     * Modifies an appointment in the database.
+     * @param appointment The appointment object that contains the information that will be changed to in the database.
+     * @throws SQLException
+     */
+    public static void updateAppointment(Appointment appointment) throws Exception {
 
         String query = "UPDATE appointments SET"
                 + " Title = ?,"
@@ -239,6 +229,11 @@ public class AppointmentDaoImpl {
     }
 
     //method to delete appointment
+
+    /**
+     * Deletes an appointment from the database.
+     * @param appointment The appointment to be deleted.
+     */
     public static void deleteAppointment(Appointment appointment){
 
         //connect to database
@@ -252,5 +247,30 @@ public class AppointmentDaoImpl {
 
         //close connection
         JDBC.closeConnection();
+    }
+
+    /**
+     * Returns an observable list of Month type appointments and their counts.
+     * @return List of month types and their counts for the month type report.
+     */
+    public static ObservableList<MonthTypeApp> getMonthTypeReport(){
+
+        JDBC.openConnection();
+        String sql = "Select MonthName(start) AS Month_Name, Type, count(Type) AS cnt FROM appointments Group By MonthName(start), type ORDER BY Month_Name";
+        ObservableList<MonthTypeApp> monthTypes = FXCollections.observableArrayList();
+        try {
+            PreparedStatement ps = JDBC.connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                monthTypes.add(new MonthTypeApp(rs.getString("Month_Name"), rs.getString("Type"), String.valueOf(rs.getInt("cnt"))));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        JDBC.closeConnection();
+
+        return monthTypes;
+
     }
 }

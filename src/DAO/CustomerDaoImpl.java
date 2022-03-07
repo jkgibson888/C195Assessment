@@ -2,16 +2,22 @@ package DAO;
 
 import Controller.LogInFormController;
 import Model.Customer;
-import Model.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+/**
+ * @author Joshua Gibson
+ */
 public class CustomerDaoImpl {
-
+    /**
+     * Retrieves all customers from the database and places them into an observable list.
+     * @return Observable list that contains all the customers from the database.
+     * @throws SQLException
+     * @throws Exception
+     */
     public static ObservableList<Customer> getAllCustomers() throws SQLException, Exception{
 
         //ObservableList to be returned containing all the users
@@ -49,6 +55,11 @@ public class CustomerDaoImpl {
     }
 
     //method to add customers
+    /**
+     * Inserts a customer into the database.
+     * @param customer The customer object that contains the information that will be inserted into the database.
+     * @throws SQLException
+     */
     public static void insertCustomer(Customer customer){
 
         //connect to the database
@@ -66,7 +77,11 @@ public class CustomerDaoImpl {
     }
 
     //method to update Appointment
-
+    /**
+     * Modifies a customer in the database.
+     * @param customer The customer object that contains the information that will be changed to in the database.
+     * @throws SQLException
+     */
     public static void updateCustomer(Customer customer) throws Exception {
 
         //connect to database
@@ -93,6 +108,10 @@ public class CustomerDaoImpl {
     }
 
     //method to delete customer
+    /**
+     * Deletes a customer from the database.
+     * @param customer The customer to be deleted.
+     */
     public static void deleteCustomer(Customer customer){
 
         //connect to database
@@ -106,7 +125,7 @@ public class CustomerDaoImpl {
         JDBC.closeConnection();
     }
 
-    public static Customer searchCustomer(int customerNum) throws Exception {
+    /*public static Customer searchCustomer(int customerNum) throws Exception {
         //connect to database
         JDBC.openConnection();
 
@@ -139,5 +158,5 @@ public class CustomerDaoImpl {
 
         return userResult;
 
-    }
+    }*/
 }

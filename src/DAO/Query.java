@@ -5,8 +5,9 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 
 
-    /**
-     */
+/**
+ * Selects, inserts, deletes and updates information in the database.
+ */
 public class Query {
     private static String query;
     private static Statement statement;
