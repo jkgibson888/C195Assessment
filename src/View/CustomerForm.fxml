@@ -114,7 +114,7 @@
                   </VBox>
                   <VBox prefWidth="300.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#customerAppBtn" text="Customer's Appointments">
+                        <Button fx:id="customerAppButtonId" mnemonicParsing="false" onAction="#customerAppBtn" text="Customer's Appointments">
                            <VBox.margin>
                               <Insets left="70.0" />
                            </VBox.margin>
@@ -134,15 +134,15 @@
                         </Button>
                         <HBox>
                            <children>
-                              <Button mnemonicParsing="false" onAction="#addBtn" text="Add">
+                              <Button fx:id="addButtonID" mnemonicParsing="false" onAction="#addBtn" text="Add">
                                  <HBox.margin>
                                     <Insets left="25.0" top="30.0" />
                                  </HBox.margin></Button>
-                              <Button mnemonicParsing="false" onAction="#modifyBtn" text="Modify">
+                              <Button fx:id="modifyButtonId" mnemonicParsing="false" onAction="#modifyBtn" text="Modify">
                                  <HBox.margin>
                                     <Insets left="45.0" top="30.0" />
                                  </HBox.margin></Button>
-                              <Button mnemonicParsing="false" onAction="#deleteBtn" text="Delete">
+                              <Button fx:id="deleteButtonId" mnemonicParsing="false" onAction="#deleteBtn" text="Delete">
                                  <HBox.margin>
                                     <Insets left="45.0" top="30.0" />
                                  </HBox.margin></Button>

@@ -2,23 +2,46 @@ package Controller;
 
 import DAO.AppointmentDaoImpl;
 import DAO.ContactDaoImp;
-import Model.Appointment;
-import Model.Contact;
-import Model.Customer;
-import Model.MonthTypeApp;
+import DAO.UserDaoImpl;
+import Model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.Month;
 import java.util.ResourceBundle;
 
 public class ReportsFormController implements Initializable {
+
+    //Method to switch scenes
+
+    Stage stage;
+    Parent scene;
+
+    /**
+     * Changes the scene based on a button event.
+     * @param event The button event that triggers the change of scene.
+     * @param scenestring The location of the new scene to be displayed.
+     * @throws IOException
+     */
+    public void ChangeScene(ActionEvent event, String scenestring) throws IOException {
+
+        stage = (Stage)((Button)event.getSource()).getScene().getWindow();
+        scene = FXMLLoader.load(getClass().getResource(scenestring));
+        stage.setScene(new Scene(scene));
+        stage.show();
+    }
+
 
     public ReportsFormController() throws Exception {
     }
@@ -45,9 +68,18 @@ public class ReportsFormController implements Initializable {
 
     }
 
+    public void PopulateUserTable(ObservableList<User> tableList, TableView<User> tableView, TableColumn<User,String> Column1, TableColumn<User, Integer> Column2){
+
+        tableView.setItems(tableList);
+        Column1.setCellValueFactory(new PropertyValueFactory<>("userName"));
+        Column2.setCellValueFactory(new PropertyValueFactory<>("total"));
+
+    }
+
     ObservableList<MonthTypeApp> allMTAppointments = AppointmentDaoImpl.getMonthTypeReport();
     ObservableList<Appointment> allAppointments = AppointmentDaoImpl.getAllAppointments();
     ObservableList<Contact> allContacts = ContactDaoImp.getAllContacts();
+    ObservableList<User> allUsers = UserDaoImpl.getAllUsers();
 
     @FXML
     private TableView<Appointment> appointmentTableView;
@@ -92,6 +124,23 @@ public class ReportsFormController implements Initializable {
     private TableColumn<MonthTypeApp, String> countCol;
 
     @FXML
+    private TableColumn<User, Integer> totalCol;
+
+    @FXML
+    private TableColumn<User, String> userCol;
+
+    @FXML
+    private TableView<User> userTable;
+
+
+    @FXML
+    void returnBtn(ActionEvent event) throws IOException {
+
+        ChangeScene(event, "/View/MainForm.fxml");
+
+    }
+
+    @FXML
     void selectContactCombo(ActionEvent event) {
 
         //get contact from combo box
@@ -115,6 +164,19 @@ public class ReportsFormController implements Initializable {
         //populate month type table
         PopulateMonthTypeTable(allMTAppointments, monthTypeTable, monthCol, monthTypeCol, countCol);
 
+        //set count for users
+        for(User user: allUsers) {
+            int count = 0;
+            for (Appointment app : allAppointments) {
+                if (app.getUserId() == user.getUserId()) {
+                    count += 1;
+                }
+            }
+            user.setTotal(count);
+        }
+
+        //populate user table
+        PopulateUserTable(allUsers, userTable, userCol, totalCol);
 
         //set contact combo
         contactCombo.setItems(allContacts);

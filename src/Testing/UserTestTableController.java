@@ -90,7 +90,7 @@ public class UserTestTableController implements Initializable {
      * @param event The button being clicked.
      */
     @FXML
-    void addNewUser(ActionEvent event) {
+    void addNewUser(ActionEvent event) throws Exception {
 
         User newUser = new User(1, newUserTxt.getText(), newPasswordTxt.getText());
         UserDaoImpl.insertUser(newUser);

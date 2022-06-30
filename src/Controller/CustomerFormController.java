@@ -134,6 +134,18 @@ public class CustomerFormController implements Initializable {
     @FXML
     private ComboBox<FirstLevelDivision> stateCombo;
 
+    @FXML
+    private Button addButtonID;
+
+    @FXML
+    private Button modifyButtonId;
+
+    @FXML
+    private Button deleteButtonId;
+
+    @FXML
+    private Button customerAppButtonId;
+
     /**
      * Method that allows a customer to be added to the database.
      * @param event The button being pressed.
@@ -179,6 +191,13 @@ public class CustomerFormController implements Initializable {
     @FXML
     void clearForm(ActionEvent event) {
 
+        //enable and disable appropriate buttons
+        addButtonID.setDisable(false);
+        modifyButtonId.setDisable(true);
+        deleteButtonId.setDisable(true);
+        customerAppButtonId.setDisable(true);
+
+        //clear form
         TableView.TableViewSelectionModel<Customer> selectionModel = customerView.getSelectionModel();
         selectionModel.clearSelection();
         customerIdTextField.clear();
@@ -214,6 +233,12 @@ public class CustomerFormController implements Initializable {
      */
     @FXML
     void customerSelected(MouseEvent event) {
+
+        //enable and disable buttons
+        addButtonID.setDisable(true);
+        modifyButtonId.setDisable(false);
+        deleteButtonId.setDisable(false);
+        customerAppButtonId.setDisable(false);
 
         //get selected customer from customer table
         TableView.TableViewSelectionModel<Customer> selectionModel = customerView.getSelectionModel();
@@ -386,6 +411,10 @@ public class CustomerFormController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        //disable modify button
+        modifyButtonId.setDisable(true);
+        deleteButtonId.setDisable(true);
+        customerAppButtonId.setDisable(true);
 
         try {
             allCustomers = CustomerDaoImpl.getAllCustomers();

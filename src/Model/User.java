@@ -8,6 +8,7 @@ public class User {
     private int userId;
     private String userName;
     private String password;
+    private int total;
 
     /**
      * Creates an object containing user information.
@@ -67,6 +68,14 @@ public class User {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
     }
 
     //override string to string method to display user in combo boxes

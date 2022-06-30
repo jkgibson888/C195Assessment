@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
@@ -10,10 +11,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.ReportsFormController">
+<AnchorPane prefHeight="1000.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.ReportsFormController">
    <children>
-      <VBox prefHeight="600.0" prefWidth="1000.0">
+      <VBox prefHeight="1000.0" prefWidth="1000.0">
          <children>
             <Label text="Number of appointments by type and month.">
                <font>
@@ -51,6 +51,22 @@
                   <TableColumn fx:id="customerIdCol" prefWidth="75.0" text="Customer ID" />
               </columns>
             </TableView>
+            <Label text="Number of appointments scheduled by each user">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <TableView fx:id="userTable" prefHeight="200.0" prefWidth="200.0">
+              <columns>
+                <TableColumn fx:id="userCol" prefWidth="75.0" text="User" />
+                <TableColumn fx:id="totalCol" prefWidth="75.0" text="Total" />
+              </columns>
+            </TableView>
+            <Button mnemonicParsing="false" onAction="#returnBtn" text="Return">
+               <VBox.margin>
+                  <Insets left="900.0" top="25.0" />
+               </VBox.margin>
+            </Button>
          </children>
       </VBox>
    </children>

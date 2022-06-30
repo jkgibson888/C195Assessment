@@ -193,6 +193,9 @@ public class CalendarFormController implements Initializable {
     @FXML
     private Button btnToModify;
 
+    @FXML
+    private Button deleteButtonId;
+
 
     /**
      * Populates the table with all the appointments in the database.
@@ -505,6 +508,7 @@ public class CalendarFormController implements Initializable {
         //disable add button and enable modify button
         btnToAdd.setDisable(true);
         btnToModify.setDisable(false);
+        deleteButtonId.setDisable(false);
 
         //set text fields
 
@@ -570,6 +574,7 @@ public class CalendarFormController implements Initializable {
         //disable modify button and enable add button
         btnToModify.setDisable(true);
         btnToAdd.setDisable(false);
+        deleteButtonId.setDisable(true);
 
         titleTextField.clear();
         descriptionTextField.clear();
@@ -584,6 +589,7 @@ public class CalendarFormController implements Initializable {
         startCombo.setValue(null);
         stopCombo.setValue(null);
 
+
     }
 
     /**
@@ -592,6 +598,7 @@ public class CalendarFormController implements Initializable {
      */
     @FXML
     void setDayAction(MouseEvent event) {
+
         errorTextFlow.getChildren().clear();
         dayCombo.getItems().clear();
         Month currentMonth = monthCombo.getSelectionModel().getSelectedItem();
@@ -623,6 +630,62 @@ public class CalendarFormController implements Initializable {
     }
 
     /**
+     * Sets the available times of the end time combo box based on what is selected in the start combo box.
+     * @param event A time being selected in the start combo box.
+     */
+    @FXML
+    void setEndTime(MouseEvent event) {
+
+
+        if(startCombo.getSelectionModel().getSelectedItem() == null && stopCombo.getSelectionModel().getSelectedItem() != null) {
+            startCombo.getItems().clear();
+            LocalDate date = LocalDate.now();
+            LocalTime time = LocalTime.parse(stopCombo.getSelectionModel().getSelectedItem(), amFormatter);
+
+            LocalDateTime stop = LocalDateTime.of(date, time).minusMinutes(5);
+            LocalDateTime start = LocalDateTime.of(LocalDate.now(), businessStart);
+
+            LocalTime initStart = Timezone.EasternToLocal(start).toLocalTime();
+            LocalTime initEnd = Timezone.EasternToLocal(stop).toLocalTime();
+            while (initStart.isBefore(initEnd.plusSeconds(1))) {
+
+                startCombo.getItems().add(amFormatter.format(initStart));
+                stopCombo.getItems().add(amFormatter.format(initStart));
+
+                initStart = initStart.plusMinutes(5);
+            }
+        }
+
+
+    }
+
+    /**
+     * Sets the available times of the start time combo box based on what is selected in the end combo box.
+     * @param event A time being selected in the end combo box.
+     */
+    @FXML
+    void setStartTime(MouseEvent event) {
+        if(stopCombo.getSelectionModel().getSelectedItem() == null && startCombo.getSelectionModel().getSelectedItem() != null) {
+            stopCombo.getItems().clear();
+            LocalDate date = LocalDate.now();
+            LocalTime time = LocalTime.parse(startCombo.getSelectionModel().getSelectedItem(), amFormatter);
+
+            LocalDateTime start = LocalDateTime.of(date, time).plusMinutes(5);
+            LocalDateTime stop = LocalDateTime.of(LocalDate.now(), businessEnd);
+
+            LocalTime initStart = Timezone.EasternToLocal(start).toLocalTime();
+            LocalTime initEnd = Timezone.EasternToLocal(stop).toLocalTime();
+            while (initStart.isBefore(initEnd.plusSeconds(1))) {
+
+                stopCombo.getItems().add(amFormatter.format(initStart));
+
+                initStart = initStart.plusMinutes(5);
+            }
+        }
+
+    }
+
+    /**
      * Initializes the form and populates the combo boxes and table view.
      * @param url
      * @param resourceBundle
@@ -632,6 +695,7 @@ public class CalendarFormController implements Initializable {
 
         //set modify button disabled
         btnToModify.setDisable(true);
+        deleteButtonId.setDisable(true);
 
         //set all appointments rb selected
         allAppointmentsRB.setSelected(true);
@@ -713,13 +777,6 @@ public class CalendarFormController implements Initializable {
             initStart = initStart.plusMinutes(5);
         }
 
-
-
-
-        //FIX ME change radio buttons based on time;
     }
-
-
-
 
 }

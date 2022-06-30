@@ -233,12 +233,12 @@
                                         </HBox>
                                         <HBox prefHeight="100.0" prefWidth="200.0">
                                             <children>
-                                                <ComboBox fx:id="startCombo" prefWidth="125.0" promptText="Start time">
+                                                <ComboBox fx:id="startCombo" onMouseClicked="#setEndTime" prefWidth="125.0" promptText="Start time">
                                                     <HBox.margin>
                                                         <Insets left="20.0" top="20.0" />
                                                     </HBox.margin>
                                                 </ComboBox>
-                                                <ComboBox fx:id="stopCombo" prefWidth="125.0" promptText="End time">
+                                                <ComboBox fx:id="stopCombo" onMouseClicked="#setStartTime" prefWidth="125.0" promptText="End time">
                                                     <HBox.margin>
                                                         <Insets left="35.0" right="5.0" top="20.0" />
                                                     </HBox.margin>
@@ -263,7 +263,7 @@
                                                         <Insets right="50.0" />
                                                     </HBox.margin>
                                                 </Button>
-                                                <Button mnemonicParsing="false" onAction="#deleteBtn" prefHeight="25.0" text="Delete">
+                                                <Button fx:id="deleteButtonId" mnemonicParsing="false" onAction="#deleteBtn" prefHeight="25.0" text="Delete">
                                                     <font>
                                                         <Font size="14.0" />
                                                     </font></Button>
