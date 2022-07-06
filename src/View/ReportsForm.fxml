@@ -11,14 +11,17 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="1000.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.ReportsFormController">
+<AnchorPane prefHeight="900.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.ReportsFormController">
    <children>
-      <VBox prefHeight="1000.0" prefWidth="1000.0">
+      <VBox prefHeight="900.0" prefWidth="600.0">
          <children>
             <Label text="Number of appointments by type and month.">
                <font>
                   <Font size="18.0" />
                </font>
+               <VBox.margin>
+                  <Insets left="125.0" top="5.0" />
+               </VBox.margin>
             </Label>
             <HBox prefHeight="250.0" prefWidth="200.0">
                <children>
@@ -29,7 +32,7 @@
                         <TableColumn fx:id="countCol" prefWidth="128.0" text="Count" />
                     </columns>
                      <HBox.margin>
-                        <Insets left="75.0" />
+                        <Insets left="140.0" />
                      </HBox.margin>
                   </TableView>
                </children>
@@ -38,8 +41,14 @@
                <font>
                   <Font size="18.0" />
                </font>
+               <VBox.margin>
+                  <Insets left="30.0" top="10.0" />
+               </VBox.margin>
             </Label>
-            <ComboBox fx:id="contactCombo" onAction="#selectContactCombo" prefWidth="150.0" promptText="Set Contact" />
+            <ComboBox fx:id="contactCombo" onAction="#selectContactCombo" prefWidth="150.0" promptText="Set Contact">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="30.0" top="10.0" />
+               </VBox.margin></ComboBox>
             <TableView fx:id="appointmentTableView" prefHeight="200.0" prefWidth="200.0">
               <columns>
                 <TableColumn fx:id="idCol" prefWidth="75.0" text="ID" />
@@ -50,21 +59,30 @@
                   <TableColumn fx:id="endCol" prefWidth="75.0" text="End" />
                   <TableColumn fx:id="customerIdCol" prefWidth="75.0" text="Customer ID" />
               </columns>
+               <VBox.margin>
+                  <Insets left="35.0" right="35.0" />
+               </VBox.margin>
             </TableView>
             <Label text="Number of appointments scheduled by each user">
                <font>
                   <Font size="18.0" />
                </font>
+               <VBox.margin>
+                  <Insets bottom="10.0" left="25.0" top="10.0" />
+               </VBox.margin>
             </Label>
             <TableView fx:id="userTable" prefHeight="200.0" prefWidth="200.0">
               <columns>
                 <TableColumn fx:id="userCol" prefWidth="75.0" text="User" />
                 <TableColumn fx:id="totalCol" prefWidth="75.0" text="Total" />
               </columns>
+               <VBox.margin>
+                  <Insets left="35.0" right="35.0" />
+               </VBox.margin>
             </TableView>
             <Button mnemonicParsing="false" onAction="#returnBtn" text="Return">
                <VBox.margin>
-                  <Insets left="900.0" top="25.0" />
+                  <Insets left="350.0" top="25.0" />
                </VBox.margin>
             </Button>
          </children>

@@ -4,6 +4,7 @@ import DAO.AppointmentDaoImpl;
 import DAO.ContactDaoImp;
 import DAO.UserDaoImpl;
 import Model.*;
+import Utility.Lambda;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -19,7 +20,9 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Month;
+import java.util.Collections;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class ReportsFormController implements Initializable {
 
@@ -140,18 +143,39 @@ public class ReportsFormController implements Initializable {
 
     }
 
+    /**
+     * Populates a table with appointments associated to a particular contact selected in the contact combo box.  A lambda expression was used as a comparator to eliminate the for loop previously used and condense the code down to a single line.
+     * @param event A contact being selected in the contact combo box.
+     */
     @FXML
     void selectContactCombo(ActionEvent event) {
 
         //get contact from combo box
         Contact contact = contactCombo.getSelectionModel().getSelectedItem();
-        ObservableList<Appointment> contactApp = FXCollections.observableArrayList();
+        //ObservableList<Appointment> contactApp = FXCollections.observableArrayList();
 
-        for(Appointment app: allAppointments){
+        //lamba expression used to eliminate
+        ObservableList<Appointment> contactApp = allAppointments.stream().filter(x -> x.getContactId()==contact.getContactId()).collect(Collectors.toCollection(FXCollections::observableArrayList));
+
+        /*Lambda lambda = (allAppointments, e) -> {
+
+            for(int n = 0; n < allAppointments.size(); n++){
+
+
+                if (allAppointments.get(n).getContactId() ==e.getContactId()) {
+                    contactApp.add(allAppointments.get(n));
+                }
+            }
+
+        };
+
+        lambda.lambdaFunction(allAppointments, contact);*/
+
+        /*for(Appointment app: allAppointments){
            if(app.getContactId() == contact.getContactId()){
                contactApp.add(app);
            }
-        }
+        }*/
 
         PopulateAppt(contactApp, appointmentTableView, idCol, titleCol, typeCol, descriptionCol, startCol, endCol, customerIdCol);
 
@@ -165,7 +189,7 @@ public class ReportsFormController implements Initializable {
         PopulateMonthTypeTable(allMTAppointments, monthTypeTable, monthCol, monthTypeCol, countCol);
 
         //set count for users
-        for(User user: allUsers) {
+        for (User user : allUsers) {
             int count = 0;
             for (Appointment app : allAppointments) {
                 if (app.getUserId() == user.getUserId()) {
@@ -174,6 +198,7 @@ public class ReportsFormController implements Initializable {
             }
             user.setTotal(count);
         }
+
 
         //populate user table
         PopulateUserTable(allUsers, userTable, userCol, totalCol);

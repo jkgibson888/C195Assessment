@@ -8,6 +8,7 @@ import Model.Appointment;
 import Model.Country;
 import Model.Customer;
 import Model.FirstLevelDivision;
+import Utility.Lambda;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -185,29 +186,33 @@ public class CustomerFormController implements Initializable {
     }
 
     /**
-     * Clears the forms text fields so that a new customer can be created.
+     * Clears the forms text fields so that a new customer can be created. A lambda expression was used here to demonstrate how to use a programmer created lambda expression.
      * @param event The button being pressed.
      */
     @FXML
     void clearForm(ActionEvent event) {
 
-        //enable and disable appropriate buttons
-        addButtonID.setDisable(false);
-        modifyButtonId.setDisable(true);
-        deleteButtonId.setDisable(true);
-        customerAppButtonId.setDisable(true);
+        Lambda lambda = () -> {
+            System.out.println("i am here");
+            //enable and disable appropriate buttons
+            addButtonID.setDisable(false);
+            modifyButtonId.setDisable(true);
+            deleteButtonId.setDisable(true);
+            customerAppButtonId.setDisable(true);
 
-        //clear form
-        TableView.TableViewSelectionModel<Customer> selectionModel = customerView.getSelectionModel();
-        selectionModel.clearSelection();
-        customerIdTextField.clear();
-        customerNameTextField.clear();
-        addressTextField.clear();
-        postalCodeTextField.clear();
-        phoneNumberTextField.clear();
-        countryCombo.setValue(null);
-        stateCombo.setValue(null);
+            //clear form
+            TableView.TableViewSelectionModel<Customer> selectionModel = customerView.getSelectionModel();
+            selectionModel.clearSelection();
+            customerIdTextField.clear();
+            customerNameTextField.clear();
+            addressTextField.clear();
+            postalCodeTextField.clear();
+            phoneNumberTextField.clear();
+            countryCombo.setValue(null);
+            stateCombo.setValue(null);
+        };
 
+        lambda.lambdaFunction();
     }
 
     /**
